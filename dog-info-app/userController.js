@@ -31,3 +31,4 @@ exports.getUserInfo = (req, res) => {
         }
     });
 };
+

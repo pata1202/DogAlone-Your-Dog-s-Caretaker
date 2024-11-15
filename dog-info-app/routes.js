@@ -6,3 +6,4 @@ router.post('/api/user', userController.saveUserInfo);
 router.get('/api/user/:id', userController.getUserInfo);
 
 module.exports = router;
+
