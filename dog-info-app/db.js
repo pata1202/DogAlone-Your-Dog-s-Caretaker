@@ -1,9 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const userController = require('./userController');
+require('dotenv').config();
+const mysql = require('mysql2');
 
-router.post('/api/user', userController.saveUserInfo);
-router.get('/api/user/:id', userController.getUserInfo);
+const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
+});
 
-module.exports = router;
+db.connect((err) => {
+    if (err) {
+        console.error('Database connection failed:', err.stack);
+        return;
+    }
+    console.log('Connected to MySQL database.');
+});
 
+module.exports = db;

@@ -5,7 +5,7 @@ exports.saveUserInfo = (req, res) => {
     const { userId, userName, dogName, dogBreed, age } = req.body;
     const query = 'INSERT INTO users (userId, userName, dogName, dogBreed, age) VALUES (?, ?, ?, ?, ?)';
 
-    db.query(query, [userId, userName, dogName, dogBreed, age], (error, results) => {
+    db.query(query, [userId, userName, dogName, dogBreed, age], (error) => {
         if (error) {
             console.error(error);
             res.status(500).send('Error saving user information');
@@ -31,4 +31,3 @@ exports.getUserInfo = (req, res) => {
         }
     });
 };
-
