@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 
 // ExpandableBar 컴포넌트
-export default function ExpandableBar({ items }) {
+export default function ExpandableBar({ items,onToggleExpand }) {
   // 펼쳐짐 상태 관리 (true: 펼쳐짐, false: 접힘)
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -17,14 +17,14 @@ export default function ExpandableBar({ items }) {
         toValue: 0,
         duration: 300, // 애니메이션 지속 시간 (밀리초)
         useNativeDriver: false,
-      }).start();
+      }).start(() => onToggleExpand(false)); // 상태 전달
     } else {
       // 펼치기 애니메이션 (항목 개수에 따라 높이 설정)
       Animated.timing(heightAnimation, {
         toValue: items.length * 35, // 항목 하나당 높이 40px
         duration: 300,
         useNativeDriver: false,
-      }).start();
+      }).start(() => onToggleExpand(true)); // 상태 전달
     }
     setIsExpanded(!isExpanded); // 상태 업데이트
   };
@@ -58,10 +58,10 @@ export default function ExpandableBar({ items }) {
 const styles = StyleSheet.create({
   // 전체 컨테이너 스타일
   container: {
-    width: 224.8,               // 컨테이너 폭
+    width: 180,               // 컨테이너 폭
     borderColor: '#DADADA',     // 외곽선 색상
     borderRadius: 7.84,         // 외곽선 둥글기
-    padding: 5,                 // 내부 여백
+   
     marginTop: 50,              // 컨테이너의 세로 위치
     backgroundColor: '#FFFFFF', // 배경 색상
   },
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     fontSize: 16,               // 화살표 크기
     color: '#000',              // 화살표 색상
     opacity: 0.5,               // 불투명도
-    left:-85,
+    left:-75,
   },
   // 메뉴 스타일 (펼쳐지는 영역)
   menu: {
