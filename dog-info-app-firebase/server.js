@@ -1,12 +1,14 @@
-//Express 서버 설정 및 실행
+// server.js
+// 내용: Express 서버를 초기화하고 routes.js를 설정합니다
 
-require("dotenv").config(); // .env 파일 로드
+
 const express = require("express");
 const app = express();
-const authRoutes = require("./routes"); // 라우트 가져오기
+const routes = require("./routes");
+require("dotenv").config(); // .env 파일에서 환경 변수 로드
 
-app.use(express.json()); // JSON 요청 파싱
-app.use(authRoutes); // 라우트 등록
+app.use(express.json()); // JSON 요청 본문 파싱
+app.use(routes); // 라우트 설정
 
 const PORT = process.env.PORT || 3000; // 포트 설정
 app.listen(PORT, () => {
