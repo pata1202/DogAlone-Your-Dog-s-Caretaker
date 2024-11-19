@@ -1,50 +1,50 @@
-import os
 import tensorflow as tf
 from tensorflow.keras import layers, models
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-# 모델 설계
-def build_model(input_shape):
-    model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Flatten(),
-        layers.Dense(128, activation='relu'),
-        layers.Dense(3, activation='softmax')  # 3개의 감정 클래스 (bark, growl, grunt)
-    ])
-    return model
+# 데이터 전처리
+train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=20, width_shift_range=0.2, height_shift_range=0.2, horizontal_flip=True)
+train_generator = train_datagen.flow_from_directory(
+    'spectrograms',
+    target_size=(150, 150),
+    batch_size=32,
+    class_mode='categorical'
+)
 
-# 스펙트로그램 이미지 데이터셋 로딩
-def load_spectrograms(data_dir):
-    # 디렉토리에서 이미지를 불러옴
-    dataset = tf.keras.preprocessing.image_dataset_from_directory(
-        data_dir,
-        image_size=(128, 128),  # 스펙트로그램 이미지 크기 (예: 128x128)
-        label_mode='int',  # 라벨을 정수로 처리
-        shuffle=True,  # 데이터를 섞기
-    )
-    return dataset
+val_datagen = ImageDataGenerator(rescale=1./255)
+val_generator = val_datagen.flow_from_directory(
+    'spectrograms',
+    target_size=(150, 150),
+    batch_size=32,
+    class_mode='categorical'
+)
 
-# 데이터 디렉토리 경로
-data_dir = 'spectrograms'
-
-# 데이터셋 로딩
-train_dataset = load_spectrograms(data_dir)
-
-# 모델 생성
-input_shape = (128, 128, 3)  # (height, width, channels) -> RGB 이미지일 경우 3채널
-model = build_model(input_shape)
+# 모델 구성
+model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 3)),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Conv2D(128, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    layers.Flatten(),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(3, activation='softmax')  # 감정 클래스 수에 따라 수정
+])
 
 # 모델 컴파일
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
 
 # 모델 훈련
-model.fit(train_dataset, epochs=10)
+history = model.fit(
+    train_generator,
+    steps_per_epoch=100,
+    epochs=1000,
+    validation_data=val_generator,
+    validation_steps=50
+)
 
 # 모델 저장
-model.save('saved_model/my_emotion_model')
-
-# 모델 평가 (선택적)
-# loss, accuracy = model.evaluate(test_dataset)
-# print(f"Test Accuracy: {accuracy}")
+model.save('dog_emotion_model.h5')
