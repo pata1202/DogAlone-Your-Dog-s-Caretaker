@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
@@ -26,7 +27,7 @@ def load_spectrograms(data_dir):
     return dataset
 
 # 데이터 디렉토리 경로
-data_dir = 'spectrograms/'
+data_dir = 'spectrograms'
 
 # 데이터셋 로딩
 train_dataset = load_spectrograms(data_dir)
@@ -40,6 +41,9 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 
 # 모델 훈련
 model.fit(train_dataset, epochs=10)
+
+# 모델 저장
+model.save('saved_model/my_emotion_model')
 
 # 모델 평가 (선택적)
 # loss, accuracy = model.evaluate(test_dataset)
