@@ -1,12 +1,13 @@
 // LoginButton.js
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function LoginButton({ onPress,title }) {
-  
+export default function LoginButton({ title }) {
+  const navigation = useNavigation(); // 네비게이션 훅 사용
 
     return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
+    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MainPage')}>
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );
@@ -15,22 +16,22 @@ export default function LoginButton({ onPress,title }) {
 const styles = StyleSheet.create({
   // 버튼 박스 스타일
   button: {
-    width: 224.8,               // 버튼 폭
-    height: 50,                 // 버튼 높이
+    width: 224.8,               
+    height: 50,                 
     backgroundColor: '#007BFF', // Primary 색상 (예시로 파란색 설정)
-    borderRadius: 7.84,         // 테두리 둥글기
-    marginTop: 50,   // 세로 위치
-    alignItems: 'center',       // 가로 중앙 정렬
-    shadowColor: '#000',        // 그림자 색상
-    shadowOpacity: 0.2,         // 그림자 투명도
-    shadowRadius: 4,            // 그림자 반경
-    elevation: 5,               // 안드로이드에서의 그림자 높이
+    borderRadius: 7.84,         
+    marginTop: 50,   
+    alignItems: 'center',      
+    shadowColor: '#000',        
+    shadowOpacity: 0.2,         
+    shadowRadius: 4,            
+    elevation: 5,               
   },
   // 텍스트 스타일
   buttonText: {
-    fontFamily: 'Montserrat',   // 폰트 설정
-    fontWeight: 'bold',         // 폰트 두께 설정
-    fontSize: 12.55,            // 텍스트 크기 설정
+    fontFamily: 'Montserrat',   
+    fontWeight: 'bold',         
+    fontSize: 12.55,            
     color: '#FFFFFF',           // 텍스트 색상 (흰색)
     letterSpacing: 0.16,        // 글자 간격
     marginTop:18,

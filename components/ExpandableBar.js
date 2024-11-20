@@ -54,35 +54,35 @@ export default function ExpandableBar({ items,onToggleExpand }) {
   );
 }
 
-// 스타일 정의
+
 const styles = StyleSheet.create({
   // 전체 컨테이너 스타일
   container: {
-    width: 180,               // 컨테이너 폭
-    borderColor: '#DADADA',     // 외곽선 색상
-    borderRadius: 7.84,         // 외곽선 둥글기
+    width: 157,              
+    borderColor: '#DADADA',     
+    borderRadius: 7.84,         
    
-    marginTop: 50,              // 컨테이너의 세로 위치
-    backgroundColor: '#FFFFFF', // 배경 색상
+    marginTop: 50,              
+    backgroundColor: '#FFFFFF', 
   },
   // 상단 바 스타일
   bar: {
-    height: 20.5,                 // 상단 바 높이
-    backgroundColor: '#F7E588', // 상단 바 배경 색상
-    justifyContent: 'center',   // 세로 정렬
-    alignItems: 'center',       // 가로 정렬
-    borderRadius: 7.84,         // 테두리 둥글기
-    shadowColor: '#000',        // 그림자 색상
-    shadowOpacity: 0.2,         // 그림자 투명도
-    shadowRadius: 4,            // 그림자 반경
-    elevation: 3,               // 안드로이드 그림자
+    height: 20.5,                 
+    backgroundColor: '#F7E588', 
+    justifyContent: 'center',  
+    alignItems: 'center',       
+    borderRadius: 7.84,         
+    shadowColor: '#000',        
+    shadowOpacity: 0.2,         
+    shadowRadius: 4,            
+    elevation: 3,               
   },
   // 화살표 텍스트 스타일
   arrow: {
-    fontSize: 16,               // 화살표 크기
-    color: '#000',              // 화살표 색상
+    fontSize: 16,               
+    color: '#000',              
     opacity: 0.5,               // 불투명도
-    left:-75,
+    left:-65,
   },
   // 메뉴 스타일 (펼쳐지는 영역)
   menu: {
@@ -101,9 +101,9 @@ const styles = StyleSheet.create({
   },
   // 메뉴 텍스트 스타일
   menuItemText: {
-    fontFamily: 'Montserrat',   // 폰트 설정
-    fontWeight: 'bold',         // 텍스트 두께
-    fontSize: 14,               // 텍스트 크기
-    color: '#000',              // 텍스트 색상
+    fontFamily: 'Montserrat',   
+    fontWeight: 'bold',         
+    fontSize: 14,               
+    color: '#000',              
   },
 });

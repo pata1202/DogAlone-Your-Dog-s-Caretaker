@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { StyleSheet, View, Animated, PanResponder } from 'react-native';
 
 export default function DragBar() {
-  const barWidth = 180; // 바의 전체 폭
+  const barWidth = 157; // 바의 전체 폭
   const circleSize = 14; // 원 크기
   const padding = 5; // 바 양쪽 여백
   const initialPosition = (barWidth - circleSize) / 2; // 중앙 위치 계산
@@ -39,7 +39,7 @@ export default function DragBar() {
 
 const styles = StyleSheet.create({
   container: {
-    width:180,
+    width:157,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
