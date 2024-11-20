@@ -41,10 +41,10 @@ model.compile(optimizer='adam',
 history = model.fit(
     train_generator,
     steps_per_epoch=100,
-    epochs=1000,
+    epochs=100,
     validation_data=val_generator,
     validation_steps=50
 )
 
 # 모델 저장
-model.save('dog_emotion_model.h5')
+model.save('dog_emotion_model_100.h5')

@@ -4,10 +4,10 @@ from tensorflow.keras.preprocessing import image
 import os
 
 # 저장된 모델 불러오기
-model = load_model('dog_emotion_model.h5')
+model = load_model('dog_emotion_model_100.h5')
 
 # 예측할 이미지 경로
-img_path = os.path.join('test/dog_grunt_test', 'dog41.png')
+img_path = os.path.join('test/ftc', '1.png')
 
 # 이미지를 모델에 맞게 전처리
 img = image.load_img(img_path, target_size=(150, 150))  # 이미지 크기 맞추기
