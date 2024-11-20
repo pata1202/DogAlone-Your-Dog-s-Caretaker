@@ -47,15 +47,15 @@ const spin = spinAnim.interpolate({
   return (
     <View style={styles.container}>
     
-    {/* 로고 이미지 */}
+   
     <Image source={require('../dogAloneAssets/loadinglogo.png')} style={styles.loadinglogo} />
 
-    {/* 애니메이션 강아지 이미지 */}
+    
     <Animated.Image
         source={require('../dogAloneAssets/loadingdog.png')}
         style={[styles.loadingdog, { transform: [{ translateX: moveAnim }] }]} // 이동 애니메이션 적용
         />
-    {/* 회전 로고 이미지 */}
+    
     <Animated.Image
         source={require('../dogAloneAssets/loadCon.png')}
         style={[styles.loadCon, { transform: [{ rotate: spin }] }]}
@@ -79,15 +79,15 @@ const styles = StyleSheet.create({
     right: -6,
   },
   loadingdog: {
-    width: 100,           // 강아지 이미지 너비
-    height: 89,          // 강아지 이미지 높이
-    position: 'absolute',// 위치를 자유롭게 조정
-    top: 490,             // 강아지 이미지가 화면 중간에 위치하도록 조정
+    width: 100,           
+    height: 89,          
+    position: 'absolute',
+    top: 490,             
   },
   loadCon: {
     width: 50,
     height: 50,
-    position: 'absolute',// 위치를 자유롭게 조정
+    position: 'absolute',
     top: 620,
   },
 });
