@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
-import ai_model #이제 학습할 모델들
+from tensorflow.keras.models import load_model
+
+# 저장된 모델 불러오기
+ai_model = load_model('../ai/dog_emotion_model_100.h5')
 
 #Flask 애플리케이션 객체 생성
 app = Flask(__name__) 
