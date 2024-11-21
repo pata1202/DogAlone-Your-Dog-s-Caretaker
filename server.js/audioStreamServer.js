@@ -27,13 +27,20 @@ io.on('connection', function(socket){
     });
 });
 
-//AI로 오디오 데이터 보내기
+//AI로 오디오 데이터 보내고 add.js 로 보내기
 const processAudioData = async (audioData) => {
     try{
         const aiResult = await axios.post('http://localhost:5000/analyze_audio',{
             audioData: audioData,
         });
         console.log("결과: ", aiResult);
+
+        // AI 결과와 현재 시간을 add.js로 전송
+        socket.emit('audioResult', {
+            current_time: aiResult.data['current time'],  // 현재 시간
+            analyze_result: aiResult.data["analyze_result"] // 분석 결과
+        });
+
     } catch(error){
         console.error('Error processing audio data: ', error);
     }
