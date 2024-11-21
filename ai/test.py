@@ -7,7 +7,7 @@ import os
 model = load_model('dog_emotion_model_100.h5')
 
 # 예측할 이미지 경로
-img_path = os.path.join('test/ftc', '1.png')
+img_path = os.path.join('test/dog_bark_test', 'dog_36.png')
 
 # 이미지를 모델에 맞게 전처리
 img = image.load_img(img_path, target_size=(150, 150))  # 이미지 크기 맞추기
