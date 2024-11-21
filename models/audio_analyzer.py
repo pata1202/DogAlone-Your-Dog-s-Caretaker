@@ -94,7 +94,7 @@ def analyze_audio_endpoint():
             "current time": current_time,
             "analyze_result": result,
             }
-        }), 200        
+        ), 200        
 
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 500
