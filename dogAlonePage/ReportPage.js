@@ -21,11 +21,11 @@ return(
         <Image source={require('../dogAloneAssets/report1.png')} style={styles.report1} />
         <Image source={require('../dogAloneAssets/report2.png')} style={styles.report2} />
         <Image source={require('../dogAloneAssets/report3.png')} style={styles.report3} />
-        <Image source={require('../dogAloneAssets/report4.png')} style={styles.report4} />
-        <Text style={styles.text1}>불안감</Text>
-        <Text style={styles.text2}>외로움</Text>
-        <Text style={styles.text3}>배고픔</Text>
-        <Text style={styles.text4}>아픔</Text>
+        
+        <Text style={styles.text1}>흥분</Text>
+        <Text style={styles.text2}>불안함</Text>
+        <Text style={styles.text3}>편안함</Text>
+        
       </View>
       <View style={styles.feedBox}>
       <Image source={require('../dogAloneAssets/report5.png')} style={styles.report5} />
@@ -104,20 +104,17 @@ const styles = StyleSheet.create({
     report1:{
       position: "absolute",
       top:370,
-      left:16,},
+      left:40,},
     report2:{
       position: "absolute",
       top:370,
-      left:99,},
+      left:145
+      },
     report3:{
       position: "absolute",
       top:370,
-      right:99,},
-    report4:{
-      position: "absolute",
-      top:370,
-      right:16,
-    },
+      right:40,},
+    
     text1:{
       fontFamily: 'Inter',      
       fontSize: 12,             
@@ -125,7 +122,7 @@ const styles = StyleSheet.create({
       color: '#000000',    
       position: "absolute",
       top:426,
-      left:29,//16    
+      left:57,//16    
     },
     text2:{
       fontFamily: 'Inter',      
@@ -134,7 +131,7 @@ const styles = StyleSheet.create({
       color: '#000000', 
       position: "absolute",
       top:426,
-      left:112,        
+      left:158,        
     },
     text3:{
       fontFamily: 'Inter',      
@@ -143,16 +140,8 @@ const styles = StyleSheet.create({
       color: '#000000',    
       position: "absolute",
       top:426,
-      right:112,  
-    },
-    text4:{
-      fontFamily: 'Inter',     
-      fontSize: 12,             
-      fontWeight: 'bold',       
-      color: '#000000',  
-      position: "absolute",
-      top:426,
-      right:35,         
+      right:52,  
+           
     },
     feedBox:{
       width: 345,                 
@@ -176,4 +165,4 @@ const styles = StyleSheet.create({
       top:-3,
     }
 
-})
+});

@@ -11,6 +11,7 @@ import HomeButton from '../components/HomeButton';
 import ReportButton from '../components/ReportButton';
 import DocuButton from '../components/DocuButton';
 import MenuButton from '../components/MenuButton';
+
 export default function SmartHome(){
 
 

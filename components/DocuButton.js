@@ -8,7 +8,7 @@ export default function DocuButton() {
   return (
     <TouchableOpacity
       style={styles.button}
-      onPress={() => navigation.navigate('smartHome')} 
+      onPress={() => navigation.navigate('DocuPage')} 
     >
       <Image
         source={require('../dogAloneAssets/docu.png')} 
