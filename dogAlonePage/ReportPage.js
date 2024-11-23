@@ -1,7 +1,11 @@
 import React, {useState} from 'react';
-import { View, Image, StyleSheet, Text, ActivityIndicator, TextInput,TouchableOpacity } from 'react-native';
+import { View, Image, StyleSheet, Text, ScrollView, TextInput,TouchableOpacity } from 'react-native';
 import BackButton from '../components/BackButton';
 import DayMonthButton from '../components/DayMonthButton';
+import HomeButton from '../components/HomeButton';
+import ReportButton from '../components/ReportButton';
+import DocuButton from '../components/DocuButton';
+import MenuButton from '../components/MenuButton';
 export default function ReportPage(){
 
 
@@ -16,6 +20,8 @@ return(
         <DayMonthButton></DayMonthButton>
       </View>
       <Text style={styles.date}>2024-11 20 울음 리포트</Text>
+      <ScrollView style={styles.scrollCon}>
+    
       <View style={styles.reportBox}>
         <View style={styles.lineBottom}></View>
         <Image source={require('../dogAloneAssets/report1.png')} style={styles.report1} />
@@ -31,6 +37,11 @@ return(
       <Image source={require('../dogAloneAssets/report5.png')} style={styles.report5} />
       <Text style={styles.text5}>오늘의 울음 리포트</Text>
       </View>
+      </ScrollView>
+      <HomeButton></HomeButton>
+      <ReportButton></ReportButton>
+      <DocuButton></DocuButton>
+      <MenuButton></MenuButton>
     </View>
 );
 }
@@ -72,8 +83,16 @@ const styles = StyleSheet.create({
       height:60,
       right:20,
     },
+    scrollCon:{
+      position:'absolute',
+      top: 200, // 큰 컨테이너 기준 상단 여백
+      height: 777 - 200, // 스크롤뷰의 높이를 제한
+      
+    },
     DayCon:{
+      alignSelf:'center',
       marginTop:70,
+      
     },
     date: {
       fontFamily: 'JockeyOne-Regular', 
@@ -145,7 +164,7 @@ const styles = StyleSheet.create({
     },
     feedBox:{
       width: 345,                 
-      height: 152,                
+      height: 250,                
       backgroundColor: '#FAF1C3', 
       borderRadius: 10,          
       marginTop: 20,
