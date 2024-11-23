@@ -1,17 +1,52 @@
-import React, { useEffect } from "react";
-import { View, Image, StyleSheet, Text, TextInput,TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View, Image, StyleSheet, Text, TextInput,TouchableOpacity,Alert } from 'react-native';
 import { useFonts, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 import LoginButton from '../components/LoginButton'; // LoginButton 컴포넌트 가져오기
 import { useNavigation } from '@react-navigation/native';
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { getAuth, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
+const fetch = require('node-fetch');
+
+
+
 
 // Firebase 세션 관리 완료 처리
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
+  const [email, setEmail] = useState(""); // 아이디 입력 필드 상태
+  const [password, setPassword] = useState(""); // 비밀번호 입력 필드 상태
+
   const navigation = useNavigation();
+
+  // 로그인 요청 함수
+  const handleLogin = async () => {
+    const apiUrl = "https://6blf-81-82-127-143.ngrok-free.app/login"; // 로그인 백엔드 API URL
+    try {
+      if (!email || !password) {
+        Alert.alert("Error", "아이디와 비밀번호를 모두 입력해주세요.");
+        return;
+      }
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }), // 이메일과 비밀번호를 JSON으로 전달
+      });
+      if (response.ok) {
+        const data = await response.json(); // 백엔드 응답 데이터
+        Alert.alert("Success", "로그인 성공!"); // 성공 알림
+        navigation.navigate("MainPage"); // 메인 페이지로 이동
+      } else {
+        const error = await response.json();
+        Alert.alert("Error", error.message || "로그인 실패");
+      }
+    } catch (error) {
+      Alert.alert("Error", "서버와의 연결에 문제가 발생했습니다.");
+    }
+  };
 
   // Google 로그인 요청 생성
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -95,6 +130,8 @@ export default function Login() {
           style={styles.textInputID}
           placeholder="아이디를 입력하세요" // 입력 전 표시할 기본 텍스트
           placeholderTextColor="#B0B0B0" // 기본 텍스트의 색상 설정
+          value={email}
+          onChangeText={setEmail}
         />
       </View>
       {/* 비밀번호 입력 필드 */}
@@ -103,12 +140,15 @@ export default function Login() {
           style={styles.textInputPW}
           placeholder="비밀번호를 입력하세요" // 입력 전 표시할 기본 텍스트
           placeholderTextColor="#B0B0B0" // 기본 텍스트의 색상 설정
+          secureTextEntry={true} // 비밀번호 숨김 처리
+          value={password}
+          onChangeText={setPassword}
         />
       </View>
       <View style={styles.buttonContainer}>
       <LoginButton
       title="로그인"
-      
+      onPress={handleLogin}
   />
     </View>
       {/* 회원가입 텍스트 */}

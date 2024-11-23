@@ -3,11 +3,11 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export default function LoginButton({ title }) {
+export default function LoginButton({ title ,onPress}) {
   const navigation = useNavigation(); // 네비게이션 훅 사용
 
     return (
-    <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MainPage')}>
+    <TouchableOpacity style={styles.button} onPress={onPress}>
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );
