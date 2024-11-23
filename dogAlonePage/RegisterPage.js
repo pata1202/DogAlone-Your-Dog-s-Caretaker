@@ -5,6 +5,7 @@ import LoginButton from '../components/LoginButton'; // LoginButton 컴포넌트
 import { useNavigation } from '@react-navigation/native';
 import BackButton from '../components/BackButton';
 
+
 export default function Login() {
   // Inter Extra Bold 폰트를 로드합니다.
   let [fontsLoaded] = useFonts({

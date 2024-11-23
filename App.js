@@ -8,10 +8,10 @@ import MainPage from './dogAlonePage/MainPage';
 import ReportPage from './dogAlonePage/ReportPage';
 import DocuPage from './dogAlonePage/DocuPage';
 import RegisterPage from './dogAlonePage/RegisterPage';
-import { View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 const Stack = createStackNavigator();  
-
+WebBrowser.maybeCompleteAuthSession();
 export default function App() {
   
   return ( 

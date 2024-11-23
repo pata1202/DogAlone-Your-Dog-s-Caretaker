@@ -1,20 +1,88 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import { View, Image, StyleSheet, Text, TextInput,TouchableOpacity } from 'react-native';
 import { useFonts, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 import LoginButton from '../components/LoginButton'; // LoginButton 컴포넌트 가져오기
 import { useNavigation } from '@react-navigation/native';
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import { getAuth, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
+
+// Firebase 세션 관리 완료 처리
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
-  // Inter Extra Bold 폰트를 로드합니다.
+  const navigation = useNavigation();
+
+  // Google 로그인 요청 생성
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId:
+    "437880776451-1go4av5u8hr2lc7b4p2fctd8ukbesfgf.apps.googleusercontent.com",// Firebase Web Client ID
+      redirectUri: 'https://auth.expo.io/@leedongryul/MyNewProject1', // 예: ngrok URL 또는 Cloud에서 승인된 URI
+  });
+
+ // 백엔드와 통신하는 함수
+ const sendTokenToBackend = async (idToken) => {
+  try {
+    const response = await fetch("https://6blf-81-82-127-143.ngrok-free.app", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ idToken }), // 백엔드로 ID Token 전송
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log("Backend Response:", result); // 백엔드 응답 출력
+      Alert.alert("Login Successful", "You are successfully logged in!");
+    } else {
+      console.error("Failed to authenticate with backend:", response.status);
+      Alert.alert("Login Failed", "Backend authentication failed.");
+    }
+  } catch (error) {
+    console.error("Error sending token to backend:", error);
+    Alert.alert("Error", "Failed to communicate with the backend.");
+  }
+};
+
+  // Firebase 인증 함수
+  const handleFirebaseGoogleSignIn = async (idToken) => {
+    const auth = getAuth(); // Firebase 인증 객체
+    const credential = GoogleAuthProvider.credential(idToken); // Google 자격 증명 생성
+
+    try {
+      const result = await signInWithCredential(auth, credential);
+      console.log("Firebase User:", result.user); // Firebase에 저장된 사용자 정보
+    } catch (error) {
+      console.error("Firebase Authentication Error:", error);
+    }
+  };
+
+  // Google 로그인 결과 처리
+  useEffect(() => {
+    
+    if (response?.type === "success") {
+      const { authentication } = response;
+
+      if (authentication && authentication.idToken) {
+        handleFirebaseGoogleSignIn(authentication.idToken);
+
+        // 백엔드로 ID 토큰 전송
+      sendTokenToBackend(authentication.idToken);
+      }
+    }
+  }, [response]);
+
+  // 폰트 로딩
   let [fontsLoaded] = useFonts({
     Inter_800ExtraBold,
   });
+
   if (!fontsLoaded) {
     return <Text>Loading...</Text>; // 로딩 중 표시
   }
 
-  const navigation = useNavigation(); // 네비게이션 훅 사용
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.rectangle}></View>
@@ -47,6 +115,16 @@ export default function Login() {
       <TouchableOpacity onPress={() => navigation.navigate('RegisterPage')}>
           <Text style={styles.signupText}>회원가입</Text>
       </TouchableOpacity>
+      <View style={styles.container}>
+      
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => promptAsync()}
+        disabled={!request} // Google 로그인 요청 생성 실패 시 버튼 비활성화
+      >
+        <Text style={styles.googleButtonText}>Sign in with Google</Text>
+      </TouchableOpacity>
+    </View>
     </View>
   );
 }
@@ -63,7 +141,7 @@ const styles = StyleSheet.create({
     top: 254,                       
     left: 23,                       
     width: 345,                     
-    height: 416,                    
+    height: 460,                    
     backgroundColor: '#FAF1C3',
     borderRadius: 30,               
   },
@@ -132,6 +210,22 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline', 
     right: -100,               
     bottom: 95,              // 비밀번호 입력 필드 바로 아래에 배치
+  },
+  googleButton: {
+    position:'absolute',
+    top: 10,
+    backgroundColor: '#4285F4',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+  },
+  googleButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 
 });
