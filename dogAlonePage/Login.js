@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { getAuth, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
+import ReportButton from '../components/ReportButton';
 const fetch = require('node-fetch');
 
 
@@ -165,6 +166,7 @@ export default function Login() {
         <Text style={styles.googleButtonText}>Sign in with Google</Text>
       </TouchableOpacity>
     </View>
+    <ReportButton></ReportButton>
     </View>
   );
 }
