@@ -15,8 +15,12 @@ const specificDate = '2024-11-25'; // 동적으로 설정 가능
 
 const query = `
   SELECT time AS date,
-         COUNT(CASE WHEN emotion = 'happy' THEN 1 END) AS happy_count,
-         COUNT(CASE WHEN emotion = 'sad' THEN 1 END) AS sad_count
+         COUNT(CASE WHEN emotion = 'bark' THEN 1 END) AS bark_count,
+         COUNT(CASE WHEN emotion = 'growl' THEN 1 END) AS growl_count
+         COUNT(CASE WHEN emotion = 'grunt' THEN 1 END) AS grunt_count,
+         COUNT(CASE WHEN emotion = 'howl' THEN 1 END) AS howl_count
+         COUNT(CASE WHEN emotion = 'whimper' THEN 1 END) AS whimper_count,
+         COUNT(CASE WHEN emotion = 'yip' THEN 1 END) AS yip_count
   FROM emotion
   WHERE time = ?
   GROUP BY time
