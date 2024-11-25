@@ -176,18 +176,6 @@ export default function MainPage() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.customBox}>
-        <Text style={styles.customBoxText}>
-          실시간 반려견 소리를 감지해보세요!
-        </Text>
-        <TouchableOpacity onPress={toggleModal}>
-          <Image
-            source={require("../dogAloneAssets/recordingblue.png")}
-            style={{ marginTop: -38, marginLeft: 270, width: 60, height: 60 }}
-          />
-        </TouchableOpacity>
-      </View>
-
       {/* 팝업창 */}
       <Modal
         visible={isModalVisible}
@@ -211,10 +199,13 @@ export default function MainPage() {
           />
         </TouchableOpacity>
       </Modal>
-
+        {/* 녹음 박스 */}
       <View style={styles.customBox}>
         <Text style={styles.customBoxText}>
           실시간 반려견 소리를 감지해보세요!
+        </Text>
+        <Text style={styles.customBoxTextSub}>
+          REC 버튼을 누르면 실시간 반려견 소리 분석이 시작됩니다.
         </Text>
         <View style={{ marginTop: -38, marginLeft: 280 }}>
           {/* 녹음 버튼 */}
@@ -222,8 +213,8 @@ export default function MainPage() {
             <Image
               source={
                 isRecording
-                  ? require("../dogAloneAssets/recordingred.png")
-                  : require("../dogAloneAssets/recordingblue.png")
+                  ? require("../dogAloneAssets/recordingred1.png")
+                  : require("../dogAloneAssets/recordingblue1.png")
               }
               style={styles.recordingButton}
             />
@@ -233,21 +224,24 @@ export default function MainPage() {
         </View>
       </View>
 
+        {/* 서비스 추천 박스 */}
       <View style={styles.mainBox}>
+        
+        
         <Image
-          source={require("../dogAloneAssets/dogbox.png")}
-          style={styles.dogBoxImage}
-        />
-        <Image
-          source={require("../dogAloneAssets/dog.png")}
+          source={require("../dogAloneAssets/dog1.png")}
           style={styles.dogImage}
         />
         <Image
-          source={require("../dogAloneAssets/textbubble.png")}
+          source={require("../dogAloneAssets/textbubble1.png")}
           style={styles.textbubbleImage}
         />
         <Text style={styles.bubbleState}>행복해요</Text>
+
+        <View style={styles.dogNameCon}></View>
         <Text style={styles.dogNameState}>초코(닥스훈트)</Text>
+        
+
         <Text style={styles.recommendText}>서비스 추천</Text>
         <Text style={styles.recommend2Text}>
           감정상태에 적합한 서비스를 추천해드려요!
@@ -295,7 +289,11 @@ export default function MainPage() {
         />
 
       </View>
-
+      <Text style={styles.normalHome1}>식사 제어</Text>
+      <View style={styles.foodCon}>
+      <Image source={require('../dogAloneAssets/food.png')} style={styles.foodImage} />
+          <Text>스마트 급식기</Text>
+      </View>
       <Text style={styles.normalHome}>우리집 환경</Text>
 
       <TouchableOpacity onPress={() => navigation.navigate("smartHome")}>
@@ -428,10 +426,10 @@ const styles = StyleSheet.create({
 
   customBox: {
     position: "absolute",
-    marginTop: 335,
+    marginTop: 315,
     alignSelf: "center",
     width: 351,
-    height: 77,
+    height: 67,
     backgroundColor: "#FAF1C3",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -441,30 +439,58 @@ const styles = StyleSheet.create({
   },
 
   customBoxText: {
-    marginTop: 30,
+    marginTop: 15,
     marginLeft: 25,
     fontSize: 16,
     fontFamily: "Inter_800ExtraBold",
+    
   },
-
+  customBoxTextSub:{
+    top:5,
+    fontSize: 11,
+    marginLeft: 25,
+    color: "rgba(51, 51, 51, 0.7)",
+  },
   mainBox: {
     position: "absolute",
     marginTop: 100,
     alignSelf: "center",
     width: 351,
-    height: 215,
-    backgroundColor: "rgba(9, 9, 9, 0.07)",
-    borderRadius: 10,
+    height: 196, // Figma의 높이를 반영
+    backgroundColor: '#FFFFFF', // 배경색
+    borderWidth: 0.5, // Stroke 두께
+    borderColor: "#DADADA", // Stroke 색상
+    borderRadius: 10, // 모서리 둥글기
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 }, // Drop shadow offset
+    shadowOpacity: 0.1, // 투명도
+    shadowRadius: 4, // 그림자 번짐 정도
+    elevation: 5, // Android용 그림자 효과
   },
   normalHome: {
-    marginTop: 145,
+    marginTop: 150,
     marginLeft: 15,
-    fontSize: 20,
+    fontSize: 18,
+    fontFamily: "Inter_800ExtraBold",
+  },
+  foodCon:{
+    alignSelf: "center",
+    top:145,
+    width: 351, // 너비
+    height: 57, // 높이
+    backgroundColor: "#FFFFFF", // 배경색
+    borderRadius: 10, // 모서리 둥글기
+    shadowColor: "#000", // 그림자 색상
+    shadowOffset: { width: 0, height: 4 }, // 그림자 오프셋
+    shadowOpacity: 0.2, // 그림자 투명도
+    shadowRadius: 4, // 그림자 번짐 정도
+    elevation: 5, // Android용 그림자 효과
+  },
+  normalHome1:{
+    position:"absolute",
+    marginTop: 395,
+    marginLeft: 15,
+    fontSize: 18,
     fontFamily: "Inter_800ExtraBold",
   },
   normalAdjust: {
@@ -498,6 +524,7 @@ const styles = StyleSheet.create({
   },
 
   dogBoxImage: {
+
     width: 149,
     height: 181,
     marginTop: 15,
@@ -505,21 +532,24 @@ const styles = StyleSheet.create({
   },
 
   dogImage: {
-    width: 112,
-    height: 98,
-    marginTop: -135,
+    position:"absolute",
+    width: 101,
+    height: 93,
+    marginTop: 53,
     marginLeft: 35,
   },
 
   textbubbleImage: {
-    width: 72,
-    height: 28,
-    marginTop: -120,
-    marginLeft: 80,
+    position:"absolute",
+    width: 80,
+    height: 24,
+    marginTop: 16,
+    marginLeft: 75,
   },
 
   bubbleState: {
-    marginTop: -21,
+    position: "absolute",
+    marginTop: 21,
     marginLeft: 96,
     fontSize: 12,
     fontFamily: "Inter_800ExtraBold",
@@ -527,22 +557,35 @@ const styles = StyleSheet.create({
   },
 
   dogNameState: {
-    marginTop: 113,
-    marginLeft: 60,
+    position:"absolute",
+    marginTop: 156,
+    marginLeft: 51,
     fontSize: 12,
     fontFamily: "Inter_800ExtraBold",
   },
 
+  dogNameCon:{
+    position:"absolute",
+    width: 90, // 너비
+    height: 20, // 높이
+    backgroundColor: "#FAF1C3", // 배경색
+    borderRadius: 10, // 모서리 둥글기
+    marginTop: 154,
+    marginLeft: 42,
+  },
+
   recommendText: {
-    marginTop: -168,
-    marginLeft: 185,
+    position: "absolute",
+    marginTop: 33,
+    marginLeft: 180,
     fontSize: 20,
     fontFamily: "Inter_800ExtraBold",
     fontWeight: "bold",
   },
   recommend2Text: {
-    marginTop: 1,
-    marginLeft: 185,
+    position: "absolute",
+    marginTop: 58,
+    marginLeft: 180,
     fontSize: 8,
     fontFamily: "Inter_800ExtraBold",
     color: "rgba(0, 0, 0, 0.6)",
@@ -550,9 +593,9 @@ const styles = StyleSheet.create({
 
   boxContainer: {
     flexDirection: "column", // 두 줄을 세로로 정렬
-    marginTop: 175,
+    marginTop: 180,
     marginLeft: 182,
-    left: 12,
+    left: 15,
   },
 
   buttonImage: {
@@ -608,8 +651,9 @@ const styles = StyleSheet.create({
   },
 
   recordingButton: {
-    width: 60,
-    height: 60,
+    top:5,
+    width: 65,
+    height: 26,
   },
   timerText: {
     marginTop: -42.5,

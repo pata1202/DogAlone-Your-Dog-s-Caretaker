@@ -8,30 +8,24 @@ const fetch = require('node-fetch');
 
 
 
-export default function Login() {
+export default function ResgisterPage() {
   // 상태 관리 (useState)
-  const [email, setEmail] = useState(''); // 이메일 입력 필드
-  const [password, setPassword] = useState(''); // 비밀번호 입력 필드
-  const [dogName, setDogName] = useState(''); // 반려견 이름 필드
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [dogName, setDogName] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false); // 추가된 상태
 
-  const navigation = useNavigation(); // Navigation 훅
+  const navigation = useNavigation();
 
-  // 폰트 로드 상태
-  let [fontsLoaded] = useFonts({
-    Inter_800ExtraBold,
-  });
-
-  // 폰트 로드 중 처리
-  if (!fontsLoaded) {
-    return <View><Text>Loading...</Text></View>;
-  }
-
-  // 회원가입 요청 함수
   const handleSignUp = async () => {
-    const apiUrl = 'https://6blf-81-82-127-143.ngrok-free.app/register'; // 백엔드 API URL
+    if (isProcessing) return; // 중복 클릭 방지
+    setIsProcessing(true);
+
+    const apiUrl = 'https://6e60-61-82-127-143.ngrok-free.app/register';
     try {
       if (!email || !password || !dogName) {
         Alert.alert('Error', '모든 필드를 입력해주세요.');
+        setIsProcessing(false); // 처리 상태 초기화
         return;
       }
 
@@ -53,6 +47,8 @@ export default function Login() {
       }
     } catch (error) {
       Alert.alert('Error', '서버와의 연결에 문제가 발생했습니다.');
+    } finally {
+      setIsProcessing(false); // 처리 상태 초기화
     }
   };
 
@@ -97,9 +93,10 @@ export default function Login() {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handleSignUp}>
-          <LoginButton title="회원가입 완료" />
-        </TouchableOpacity>
+      <LoginButton
+        title="회원가입 완료"
+        onPress={handleSignUp} // 버튼 클릭 이벤트
+      />
       </View>
     </View>
   );
