@@ -1,47 +1,43 @@
+const express = require('express');
 const mysql = require("mysql2/promise");
-var db = require('./db');
-const _ = require("lodash");
+const db = require('./config/db');
+const app = express();
 
-(async () => {
-    try {
-        // 1. DB에서 데이터 가져오기
-        const [rows] = await db.execute("SELECT * FROM your_table");
-
-        // 2. Lodash를 이용한 데이터 가공
-        // 예제 데이터 형태
-        // rows = [
-        //   { id: 1, date: "2024-11-01", emotion: 'happy' },
-        //   { id: 2, date: "2024-11-01", emotion: 'sad' },
-        //   { id: 3, date: "2024-11-02", emotion: 'scared' },
-        // ];
-
-        // 3. 일별 데이터 정리
-        const dailyData = _(rows)
-            .groupBy((row) => row.date) // 날짜별 그룹화
-            .map((group, date) => ({
-                date,
-                emotionCounts: _.countBy(group, "emotion"), // emotion별 개수
-                totalEntries: group.length, // 총 항목 개수
-            }))
-            .value();
-
-        console.log("일별 데이터:", dailyData);
-
-        // 4. 월별 데이터 정리
-        const monthlyData = _(rows)
-            .groupBy((row) => row.date.slice(0, 7)) // YYYY-MM 형식으로 그룹화
-            .map((group, month) => ({
-                month,
-                emotionCounts: _.countBy(group, "emotion"), // emotion별 개수
-                totalEntries: group.length, // 총 항목 개수
-            }))
-            .value();
-
-        console.log("월별 데이터:", monthlyData);
-
-        // 5. DB 연결 종료
-        await db.end();
-    } catch (error) {
-        console.error("Error:", error);
+db.connect(err => {
+    if (err) {
+        console.error('데이터베이스 연결 실패:', err);
+        return;
     }
-})();
+    console.log('데이터베이스에 연결됨');
+});
+
+const specificDate = '2024-11-25'; // 동적으로 설정 가능
+
+const query = `
+  SELECT time AS date,
+         COUNT(CASE WHEN emotion = 'happy' THEN 1 END) AS happy_count,
+         COUNT(CASE WHEN emotion = 'sad' THEN 1 END) AS sad_count
+  FROM emotion
+  WHERE time = ?
+  GROUP BY time
+  ORDER BY time;
+`;
+
+db.query(query, [specificDate], (err, results) => {
+    if (err) {
+        console.error('쿼리 실행 오류:', err);
+        return;
+    }
+
+    // 결과 출력
+    console.log(`쿼리 결과 (날짜: ${specificDate}):`, results);
+
+});
+
+db.end((err) => {
+    if (err) {
+        console.error('MySQL 연결 종료 오류:', err);
+        return;
+    }
+    console.log('MySQL 연결 종료');
+});
