@@ -29,7 +29,7 @@ model = models.Sequential([
     layers.MaxPooling2D((2, 2)),
     layers.Flatten(),
     layers.Dense(128, activation='relu'),
-    layers.Dense(3, activation='softmax')  # 감정 클래스 수에 따라 수정
+    layers.Dense(6, activation='softmax')  # 감정 클래스 수에 따라 수정
 ])
 
 # 모델 컴파일
@@ -47,4 +47,4 @@ history = model.fit(
 )
 
 # 모델 저장
-model.save('dog_emotion_model_100.h5')
+model.save('dog_emotion_model.h5')

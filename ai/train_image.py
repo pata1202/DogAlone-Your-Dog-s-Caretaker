@@ -31,7 +31,7 @@ def audio_to_spectrogram(file_path, output_path):
 # 폴더에서 .wav 파일을 찾고, 각 파일을 스펙트로그램 이미지로 변환
 def process_audio_files(data_dir):
     # 각 감정별 폴더를 순차적으로 처리
-    for emotion in ['dog_bark_train', 'dog_growl_train', 'dog_grunt_train']:
+    for emotion in ['Bark', 'Growl', 'Grunt', 'Howl', 'Whimper', 'Yip']:
         emotion_dir = os.path.join(data_dir, emotion)
         
         # 각 폴더 안의 .wav 파일 처리
@@ -48,7 +48,7 @@ def process_audio_files(data_dir):
                 audio_to_spectrogram(file_path, output_file_path)
 
 # 데이터 디렉토리 경로
-data_dir = 'sample/'
+data_dir = 'all_sound/'
 
 # 스펙트로그램 변환 시작
 process_audio_files(data_dir)
