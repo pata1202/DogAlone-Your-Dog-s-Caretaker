@@ -7,17 +7,23 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
-  Alert
+  Alert,
 } from "react-native";
 import RecommendButton from "../components/RecommendButton";
 import { useNavigation } from "@react-navigation/native";
 import { useFonts, Inter_800ExtraBold } from "@expo-google-fonts/inter";
-import HomeButton from '../components/HomeButton';
-import ReportButton from '../components/ReportButton';
-import DocuButton from '../components/DocuButton';
-import MenuButton from '../components/MenuButton';
-
+import HomeButton from "../components/HomeButton";
+import ReportButton from "../components/ReportButton";
+import DocuButton from "../components/DocuButton";
+import MenuButton from "../components/MenuButton";
+import RedButton from "../components/RedButton";
 import { Audio } from "expo-av";
+import io from "socket.io-client";
+import * as FileSystem from 'expo-file-system';
+import FoodMoveButton from "../components/FoodMoveButton";
+import FoodMoveButton1 from "../components/FoodMoveButton1";
+
+const socket = io("http://192.168.0.48:3000"); // <your-computer-ip>를 로컬 IP로 변경
 
 export default function MainPage() {
   let [fontsLoaded] = useFonts({
@@ -49,18 +55,16 @@ export default function MainPage() {
   const [isPetCareOn, setIsPetCareOn] = useState(false);
   const [isAirConOn, setIsAirConOn] = useState(false);
 
-  // 버튼 상태를 토글하는 함수
   const toggleTV = () => setIsTVOn(!isTVOn);
   const toggleSpeaker = () => setIsSpeakerOn(!isSpeakerOn);
   const togglePetCare = () => setIsPetCareOn(!isPetCareOn);
   const toggleAirCon = () => setIsAirConOn(!isAirConOn);
 
-  const [recording, setRecording] = useState(null); // 녹음 객체
-  const [recordingTime, setRecordingTime] = useState("00:00"); // 카운터
-  const [isRecording, setIsRecording] = useState(false); // 녹음 상태
-  const [timerInterval, setTimerInterval] = useState(null); // 타이머 간격 관리
+  const [recording, setRecording] = useState(null);
+  const [recordingTime, setRecordingTime] = useState("00:00");
+  const [isRecording, setIsRecording] = useState(false);
+  const [timerInterval, setTimerInterval] = useState(null);
 
-  // 시간 형식 변환 함수
   const formatTime = (timeInMillis) => {
     const minutes = Math.floor(timeInMillis / 1000 / 60);
     const seconds = Math.floor((timeInMillis / 1000) % 60);
@@ -73,9 +77,9 @@ export default function MainPage() {
   const setupAudioMode = async () => {
     try {
       await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true, // iOS에서 녹음을 허용
-        playsInSilentModeIOS: true, // 무음 모드에서도 녹음 가능
-        staysActiveInBackground: true, // 백그라운드 상태에서도 유지
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
       });
       console.log("Audio mode set successfully");
     } catch (err) {
@@ -84,7 +88,28 @@ export default function MainPage() {
     }
   };
 
-  // 녹음 시작 함수
+  const recordingOptions = {
+    isMeteringEnabled: true,
+    android: {
+      extension: ".wav",
+      outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_PCM_16BIT,
+      audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+    },
+    ios: {
+      extension: ".wav",
+      audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+      linearPCMBitDepth: 16,
+      linearPCMIsBigEndian: false,
+      linearPCMIsFloat: false,
+    },
+  };
+
   const startRecording = async () => {
     try {
       console.log("Setting up audio mode...");
@@ -98,13 +123,10 @@ export default function MainPage() {
       }
 
       console.log("Starting recording...");
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
+      const { recording } = await Audio.Recording.createAsync(recordingOptions);
       setRecording(recording);
       setIsRecording(true);
 
-      // 타이머 업데이트
       const interval = setInterval(async () => {
         const status = await recording.getStatusAsync();
         if (status.isRecording) {
@@ -122,24 +144,48 @@ export default function MainPage() {
     }
   };
 
-  // 녹음 중지 함수
+  React.useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to the backend server");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from the backend server");
+    });
+
+    // 클린업: 컴포넌트 언마운트 시 소켓 연결 해제
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   const stopRecording = async () => {
     try {
-      console.log("Stopping recording...");
-      if (recording) {
-        await recording.stopAndUnloadAsync();
-        const uri = recording.getURI(); // 녹음된 파일 경로
-        console.log("Recording saved at:", uri);
-      }
+        console.log("Stopping recording...");
+        if (recording) {
+            await recording.stopAndUnloadAsync();
+            const uri = recording.getURI();
+            console.log("Recording saved at:", uri);
+
+            // 파일을 Base64로 변환
+            const fileData = await FileSystem.readAsStringAsync(uri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            // Base64 데이터를 소켓을 통해 전송
+            socket.emit("audioStream", { base64: fileData });  // fileData로 변경
+            console.log("Base64 데이터 길이:", fileData.length);
+            console.log("Audio data sent to the server");
+        }
     } catch (err) {
-      console.error("Failed to stop recording:", err);
+        console.error("Failed to stop recording:", err);
     } finally {
-      setRecording(null);
-      setIsRecording(false);
-      setRecordingTime("00:00");
-      clearInterval(timerInterval);
+        setRecording(null);
+        setIsRecording(false);
+        setRecordingTime("00:00");
+        clearInterval(timerInterval);
     }
-  };
+};
 
   // 녹음 버튼 누를 때 처리
   const handleRecordingPress = () => {
@@ -157,7 +203,6 @@ export default function MainPage() {
       );
     }
   };
-
 
   // 폰트가 로드되지 않은 경우 로딩 화면을 표시합니다.
   if (!fontsLoaded) {
@@ -290,9 +335,23 @@ export default function MainPage() {
 
       </View>
       <Text style={styles.normalHome1}>식사 제어</Text>
+      
+      <View style={styles.FoodButtonCon1}>
+            <FoodMoveButton></FoodMoveButton>
+      </View>
+
+      <View style={styles.FoodButtonCon2}>
+            <FoodMoveButton1></FoodMoveButton1>
+      </View>
+
       <View style={styles.foodCon}>
       <Image source={require('../dogAloneAssets/food.png')} style={styles.foodImage} />
-          <Text>스마트 급식기</Text>
+          <Text style={styles.foodText}>스마트 급식기</Text>
+          <Image source={require('../dogAloneAssets/arrow1.png')} style={styles.arrowImage} />
+          <View style={styles.redButton1}>
+          <RedButton></RedButton>
+          
+          </View>
       </View>
       <Text style={styles.normalHome}>우리집 환경</Text>
 
@@ -300,89 +359,37 @@ export default function MainPage() {
         <Text style={styles.normalAdjust}>환경 조정하러 가기▶</Text>
       </TouchableOpacity>
 
-      {/* MiniBox 전체 컨테이너 */}
-      <View style={styles.miniBoxMainContainer}>
-        {/* 첫 번째 줄 */}
-        <View style={styles.miniBoxRow}>
-          <View style={styles.miniBox}>
-          <TouchableOpacity onPress={toggleTV}>
-              <Image
-                source={
-                  isTVOn
-                    ? require("../dogAloneAssets/onbutton.png")
-                    : require("../dogAloneAssets/offbutton.png")
-                }
-                style={styles.buttonImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.miniBoxText}>티비</Text>
-          </View>
-          <View style={styles.miniBox}>
-          <TouchableOpacity onPress={toggleSpeaker}>
-              <Image
-                source={
-                  isSpeakerOn
-                    ? require("../dogAloneAssets/onbutton.png")
-                    : require("../dogAloneAssets/offbutton.png")
-                }
-                style={styles.buttonImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.miniBoxText}>스피커</Text>
-          </View>
+      <View style={styles.temCon}>
+        <View style={styles.newlight}>
+        <Image source={require('../dogAloneAssets/newlight.png')} style={styles.newligthI} />
         </View>
- {/* 두 번째 줄 */}
- <View style={styles.miniBoxRow}>
-          <View style={styles.miniBox}>
-            <TouchableOpacity onPress={togglePetCare}>
-              <Image
-                source={
-                  isPetCareOn
-                    ? require("../dogAloneAssets/onbutton.png")
-                    : require("../dogAloneAssets/offbutton.png")
-                }
-                style={styles.buttonImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.miniBoxText2}>펫케어</Text>
-          </View>
-          <View style={styles.miniBox}>
-            <TouchableOpacity onPress={toggleAirCon}>
-              <Image
-                source={
-                  isAirConOn
-                    ? require("../dogAloneAssets/onbutton.png")
-                    : require("../dogAloneAssets/offbutton.png")
-                }
-                style={styles.buttonImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.miniBoxText2}>에어컨</Text>
-          </View>
+        <View style={styles.newtem}>
+        <Image source={require('../dogAloneAssets/newtem.png')} style={styles.newtemI} />
         </View>
+        <Text style={styles.temText1}>조명</Text>
+        <Text style={styles.temText2}>온도</Text>
+        <Text style={styles.temText3}>OFF</Text>
+        <Text style={styles.temText4}>22C</Text>
       </View>
 
-      <Image
-        source={require("../dogAloneAssets/tv.png")}
-        style={{
-          width: 71,
-          height: 60,
-          marginTop: -235,
-          marginLeft: 15,
-        }}
-      />
-      <Image
-        source={require("../dogAloneAssets/speaker.png")}
-        style={{ width: 78, height: 92.76, marginTop: -75, marginLeft: 205 }}
-      />
-      <Image
-        source={require("../dogAloneAssets/pet.png")}
-        style={{ width: 110, height: 73.25, marginTop: 38, marginLeft: -1 }}
-      />
-      <Image
-        source={require("../dogAloneAssets/air.png")}
-        style={{ width: 27, height: 59, marginTop: -65, marginLeft: 228 }}
-      />
+      <View style={styles.tvCon}>
+      <View style={styles.newtv}>
+      <Image source={require('../dogAloneAssets/newtv.png')} style={styles.newtvI} />
+      <View style={styles.redButton2}>
+          <RedButton></RedButton>
+          </View>
+      </View>
+      <Text style={styles.tvText}>스마트 TV</Text>
+      </View>
+      <View style={styles.speakCon}>
+      <View style={styles.newspeak}>
+      <Image source={require('../dogAloneAssets/newspeaker.png')} style={styles.newspeakI} />
+      <View style={styles.redButton3}>
+          <RedButton></RedButton>
+          </View>
+      </View>
+      <Text style={styles.speakText}>AI 스피커</Text>
+      </View>
       <HomeButton></HomeButton>
       <ReportButton></ReportButton>
       <DocuButton></DocuButton>
@@ -390,8 +397,6 @@ export default function MainPage() {
     </View>
   );
 }
-        
-  
 
 const styles = StyleSheet.create({
   container: {
@@ -468,23 +473,93 @@ const styles = StyleSheet.create({
     elevation: 5, // Android용 그림자 효과
   },
   normalHome: {
-    marginTop: 150,
+    marginTop: 163,
     marginLeft: 15,
     fontSize: 18,
     fontFamily: "Inter_800ExtraBold",
+    
   },
   foodCon:{
     alignSelf: "center",
     top:145,
     width: 351, // 너비
     height: 57, // 높이
-    backgroundColor: "#FFFFFF", // 배경색
+    backgroundColor: "#FFFFFF", 
     borderRadius: 10, // 모서리 둥글기
-    shadowColor: "#000", // 그림자 색상
-    shadowOffset: { width: 0, height: 4 }, // 그림자 오프셋
-    shadowOpacity: 0.2, // 그림자 투명도
-    shadowRadius: 4, // 그림자 번짐 정도
-    elevation: 5, // Android용 그림자 효과
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.2, 
+    shadowRadius: 4, 
+    elevation: 5, 
+    justifyContent: "center",
+  },
+  foodImage:{
+    position:"absolute",
+    left:16,
+    top:10,
+  },
+  foodText:{
+    fontFamily: "Inter_800ExtraBold", 
+    fontSize: 16, // 글자 크기 16px
+    lineHeight: 24, // 줄 간격 (Auto는 보통 fontSize * 1.5를 기준으로 사용)
+    letterSpacing: 0, 
+    left: 78,
+    
+  },
+  arrowImage:{
+    position:"absolute",
+    left:171,
+    
+  },
+  redButton1:{
+    position:"absolute",
+    left: 294,
+  },
+  temCon:{
+    alignSelf: "center",
+    top:10,
+    width: 351, // 너비
+    height: 76, // 높이
+    backgroundColor: "#FFFFFF", 
+    borderRadius: 10, // 모서리 둥글기
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.2, 
+    shadowRadius: 4, 
+    elevation: 5, 
+    justifyContent: "center",
+  },
+  tvCon:{
+
+    position:"absolute",
+    top:625,
+    width: 169, // 너비
+    height: 76, // 높이
+    backgroundColor: "#FFFFFF", 
+    borderRadius: 10, // 모서리 둥글기
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.2, 
+    shadowRadius: 4, 
+    elevation: 5, 
+    justifyContent: "center",
+    right:203,
+  },
+  speakCon:{
+    position:"absolute",
+    top:625,
+    width: 169, // 너비
+    height: 76, // 높이
+    backgroundColor: "#FFFFFF", 
+    borderRadius: 10, // 모서리 둥글기
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.2, 
+    shadowRadius: 4, 
+    elevation: 5, 
+    justifyContent: "center",
+    left:203,
+
   },
   normalHome1:{
     position:"absolute",
@@ -492,6 +567,17 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontSize: 18,
     fontFamily: "Inter_800ExtraBold",
+ 
+  },
+  FoodButtonCon1:{
+    position:"absolute",
+    top:393,
+    left:90,
+  },
+  FoodButtonCon2:{
+    position:"absolute",
+    top:500,
+    left:104,
   },
   normalAdjust: {
     marginTop: -14,
@@ -661,4 +747,91 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
   },
+  newlight:{
+    position:"absolute",
+  },
+  newtem:{
+    position:"absolute",
+  },
+  newtv:{
+    position:"absolute",
+    left:18,
+  },
+  newspeak:{
+    position:"absolute",
+    left:18,
+  },
+  redButton2:{
+    position:"absolute",
+    left: 95,
+    top:30,
+  },
+  redButton3:{
+    position:"absolute",
+    left: 95,
+    top:37,
+  },
+  tvText:{
+    position:"absolute",
+    fontFamily: "Inter_800ExtraBold", 
+    fontSize: 16, 
+    lineHeight: 24, 
+    letterSpacing: 0, 
+    left:84,
+    bottom:35,
+  },
+  speakText:{
+    position:"absolute",
+    fontFamily: "Inter_800ExtraBold", 
+    fontSize: 16, 
+    lineHeight: 24, 
+    letterSpacing: 0, 
+    left:84,
+    bottom:35,
+  },
+  newlight:{
+    position:"absolute",
+    left:24,
+  },
+  newtem:{
+    position:"absolute",
+    left:207,
+  },
+  temText1:{
+    position:"absolute,",
+    fontFamily: "Inter_800ExtraBold", 
+    fontSize: 16, 
+    lineHeight: 24, 
+    letterSpacing: 0, 
+    left:97,
+    bottom:11,
+  },
+  temText2:{
+    position:"absolute",
+    fontFamily: "Inter_800ExtraBold", 
+    fontSize: 16, 
+    lineHeight: 24, 
+    letterSpacing: 0, 
+    left:273,
+    bottom:38,
+  },
+  temText3:{
+    position:"absolute",
+    fontSize: 20, 
+    lineHeight: 30, 
+    letterSpacing: 0, 
+    color: "rgba(0, 119, 255, 0.6)", 
+    left:90,
+    top:37,
+  },
+  temText4:{
+    position:"absolute",
+    position:"absolute",
+    fontSize: 20, 
+    lineHeight: 30, 
+    letterSpacing: 0, 
+    color: "rgba(0, 119, 255, 0.6)", 
+    left:267,
+    top:37,
+  }
 });

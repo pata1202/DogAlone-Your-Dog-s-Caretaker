@@ -8,6 +8,7 @@ import MainPage from './dogAlonePage/MainPage';
 import ReportPage from './dogAlonePage/ReportPage';
 import DocuPage from './dogAlonePage/DocuPage';
 import RegisterPage from './dogAlonePage/RegisterPage';
+import FoodPage from './dogAlonePage/FoodPage';
 import * as WebBrowser from 'expo-web-browser';
 
 const Stack = createStackNavigator();  
@@ -24,6 +25,7 @@ export default function App() {
         <Stack.Screen name="smartHome" component={SmartHome} />
         <Stack.Screen name="ReportPage" component={ReportPage} />
         <Stack.Screen name="DocuPage" component={DocuPage} />
+        <Stack.Screen name="FoodPage" component={FoodPage} />
        
       </Stack.Navigator>
     </NavigationContainer>
