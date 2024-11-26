@@ -90,7 +90,7 @@ def analyze_audio_endpoint():
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 예: "2024-11-21 14:35:10"
 
     return jsonify({
-        "current time": current_time,
+        "current_time": current_time,
         "analyze_result": result,
         }
     ), 200    
