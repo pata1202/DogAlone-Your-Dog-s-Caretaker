@@ -34,3 +34,6 @@ protectinfo.env
 
 # typescript
 *.tsbuildinfo
+
+#env
+Link-test/

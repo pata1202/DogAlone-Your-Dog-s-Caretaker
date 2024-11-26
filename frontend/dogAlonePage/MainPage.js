@@ -7,17 +7,22 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
-  Alert
+  Alert,
 } from "react-native";
 import RecommendButton from "../components/RecommendButton";
 import { useNavigation } from "@react-navigation/native";
 import { useFonts, Inter_800ExtraBold } from "@expo-google-fonts/inter";
-import HomeButton from '../components/HomeButton';
-import ReportButton from '../components/ReportButton';
-import DocuButton from '../components/DocuButton';
-import MenuButton from '../components/MenuButton';
+import HomeButton from "../components/HomeButton";
+import ReportButton from "../components/ReportButton";
+import DocuButton from "../components/DocuButton";
+import MenuButton from "../components/MenuButton";
 
 import { Audio } from "expo-av";
+import io from "socket.io-client";
+import * as FileSystem from 'expo-file-system';
+
+
+const socket = io("http://192.168.0.48:3000"); // <your-computer-ip>를 로컬 IP로 변경
 
 export default function MainPage() {
   let [fontsLoaded] = useFonts({
@@ -49,18 +54,16 @@ export default function MainPage() {
   const [isPetCareOn, setIsPetCareOn] = useState(false);
   const [isAirConOn, setIsAirConOn] = useState(false);
 
-  // 버튼 상태를 토글하는 함수
   const toggleTV = () => setIsTVOn(!isTVOn);
   const toggleSpeaker = () => setIsSpeakerOn(!isSpeakerOn);
   const togglePetCare = () => setIsPetCareOn(!isPetCareOn);
   const toggleAirCon = () => setIsAirConOn(!isAirConOn);
 
-  const [recording, setRecording] = useState(null); // 녹음 객체
-  const [recordingTime, setRecordingTime] = useState("00:00"); // 카운터
-  const [isRecording, setIsRecording] = useState(false); // 녹음 상태
-  const [timerInterval, setTimerInterval] = useState(null); // 타이머 간격 관리
+  const [recording, setRecording] = useState(null);
+  const [recordingTime, setRecordingTime] = useState("00:00");
+  const [isRecording, setIsRecording] = useState(false);
+  const [timerInterval, setTimerInterval] = useState(null);
 
-  // 시간 형식 변환 함수
   const formatTime = (timeInMillis) => {
     const minutes = Math.floor(timeInMillis / 1000 / 60);
     const seconds = Math.floor((timeInMillis / 1000) % 60);
@@ -73,9 +76,9 @@ export default function MainPage() {
   const setupAudioMode = async () => {
     try {
       await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true, // iOS에서 녹음을 허용
-        playsInSilentModeIOS: true, // 무음 모드에서도 녹음 가능
-        staysActiveInBackground: true, // 백그라운드 상태에서도 유지
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
       });
       console.log("Audio mode set successfully");
     } catch (err) {
@@ -84,7 +87,28 @@ export default function MainPage() {
     }
   };
 
-  // 녹음 시작 함수
+  const recordingOptions = {
+    isMeteringEnabled: true,
+    android: {
+      extension: ".wav",
+      outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_PCM_16BIT,
+      audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+    },
+    ios: {
+      extension: ".wav",
+      audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+      linearPCMBitDepth: 16,
+      linearPCMIsBigEndian: false,
+      linearPCMIsFloat: false,
+    },
+  };
+
   const startRecording = async () => {
     try {
       console.log("Setting up audio mode...");
@@ -98,13 +122,10 @@ export default function MainPage() {
       }
 
       console.log("Starting recording...");
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
+      const { recording } = await Audio.Recording.createAsync(recordingOptions);
       setRecording(recording);
       setIsRecording(true);
 
-      // 타이머 업데이트
       const interval = setInterval(async () => {
         const status = await recording.getStatusAsync();
         if (status.isRecording) {
@@ -122,24 +143,48 @@ export default function MainPage() {
     }
   };
 
-  // 녹음 중지 함수
+  React.useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to the backend server");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from the backend server");
+    });
+
+    // 클린업: 컴포넌트 언마운트 시 소켓 연결 해제
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   const stopRecording = async () => {
     try {
-      console.log("Stopping recording...");
-      if (recording) {
-        await recording.stopAndUnloadAsync();
-        const uri = recording.getURI(); // 녹음된 파일 경로
-        console.log("Recording saved at:", uri);
-      }
+        console.log("Stopping recording...");
+        if (recording) {
+            await recording.stopAndUnloadAsync();
+            const uri = recording.getURI();
+            console.log("Recording saved at:", uri);
+
+            // 파일을 Base64로 변환
+            const fileData = await FileSystem.readAsStringAsync(uri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            // Base64 데이터를 소켓을 통해 전송
+            socket.emit("audioStream", { base64: fileData });  // fileData로 변경
+            console.log("Base64 데이터 길이:", fileData.length);
+            console.log("Audio data sent to the server");
+        }
     } catch (err) {
-      console.error("Failed to stop recording:", err);
+        console.error("Failed to stop recording:", err);
     } finally {
-      setRecording(null);
-      setIsRecording(false);
-      setRecordingTime("00:00");
-      clearInterval(timerInterval);
+        setRecording(null);
+        setIsRecording(false);
+        setRecordingTime("00:00");
+        clearInterval(timerInterval);
     }
-  };
+};
 
   // 녹음 버튼 누를 때 처리
   const handleRecordingPress = () => {
@@ -158,7 +203,6 @@ export default function MainPage() {
     }
   };
 
-
   // 폰트가 로드되지 않은 경우 로딩 화면을 표시합니다.
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -169,10 +213,10 @@ export default function MainPage() {
       <View style={styles.helloBox}>
         <Text style={styles.helloText}>초코의 주인님, 안녕하세요!</Text>
         <TouchableOpacity onPress={toggleModal}>
-        <Image
-          source={require("../dogAloneAssets/alarm.png")}
-          style={{ width: 46, height: 46, marginTop: -35, marginLeft: 300 }}
-        />
+          <Image
+            source={require("../dogAloneAssets/alarm.png")}
+            style={{ width: 46, height: 46, marginTop: -35, marginLeft: 300 }}
+          />
         </TouchableOpacity>
       </View>
 
@@ -199,8 +243,8 @@ export default function MainPage() {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>🔔알림</Text>
             <Text style={styles.modalContent}>
-            강아지가 짖었어요{"\n"}
-            {"\n"}🐶:왈왈
+              강아지가 짖었어요{"\n"}
+              {"\n"}🐶:왈왈
             </Text>
           </View>
         </View>
@@ -288,12 +332,11 @@ export default function MainPage() {
             title="진정되는 영상 재생하기"
           />
         </View>
-        
+
         <Image
           source={require("../dogAloneAssets/miniVideo.png")}
           style={{ position: "absolute", marginTop: 75, marginLeft: 14 }}
         />
-
       </View>
 
       <Text style={styles.normalHome}>우리집 환경</Text>
@@ -307,7 +350,7 @@ export default function MainPage() {
         {/* 첫 번째 줄 */}
         <View style={styles.miniBoxRow}>
           <View style={styles.miniBox}>
-          <TouchableOpacity onPress={toggleTV}>
+            <TouchableOpacity onPress={toggleTV}>
               <Image
                 source={
                   isTVOn
@@ -320,7 +363,7 @@ export default function MainPage() {
             <Text style={styles.miniBoxText}>티비</Text>
           </View>
           <View style={styles.miniBox}>
-          <TouchableOpacity onPress={toggleSpeaker}>
+            <TouchableOpacity onPress={toggleSpeaker}>
               <Image
                 source={
                   isSpeakerOn
@@ -333,8 +376,8 @@ export default function MainPage() {
             <Text style={styles.miniBoxText}>스피커</Text>
           </View>
         </View>
- {/* 두 번째 줄 */}
- <View style={styles.miniBoxRow}>
+        {/* 두 번째 줄 */}
+        <View style={styles.miniBoxRow}>
           <View style={styles.miniBox}>
             <TouchableOpacity onPress={togglePetCare}>
               <Image
@@ -392,8 +435,6 @@ export default function MainPage() {
     </View>
   );
 }
-        
-  
 
 const styles = StyleSheet.create({
   container: {
