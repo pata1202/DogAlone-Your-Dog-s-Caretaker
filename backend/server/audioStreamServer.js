@@ -6,10 +6,14 @@ const fs = require('fs');
 const path = require('path');
 
 var app = express();
+let aiResponse = null;
 
 // http 서버 생성 및 socketio 바인딩
 const server = http.createServer(app);
 const io = socketIo(server);
+
+// 클라이언트 소켓을 저장할 객체
+let clientSockets = [];
 
 // 포트 연결
 server.listen(3000, function () {
@@ -19,6 +23,9 @@ server.listen(3000, function () {
 // 클라이언트 연결
 io.on('connection', function (socket) {
     console.log('Client connected');
+
+    // 클라이언트 소켓 배열에 추가
+    clientSockets.push(socket);
 
     // 오디오 데이터(Base64) 받기
     socket.on('audioStream', async function (audioData) {
@@ -32,11 +39,20 @@ io.on('connection', function (socket) {
                 console.log(`WAV file saved to: ${wavFilePath}`);
 
                 // 받은 WAV 파일을 AI 서버로 전송
-                const aiResponse = await processAudioData(wavFilePath);
+                aiResponse = await processAudioData(wavFilePath);
                 console.log("AI 분석 결과:", aiResponse);
 
-                // 결과를 클라이언트로 다시 전송 (옵션)
+                // 오디오 데이터를 보낸 클라이언트에게 전송
                 socket.emit("aiResult", aiResponse);
+                
+
+                // 다른 클라이언트(add.js)에게도 전송
+                clientSockets.forEach(clientSocket => {
+                    if (clientSocket !== socket) { // 자기 자신은 제외하고
+                        clientSocket.emit("aiResult", aiResponse);
+                        console.log("Sent data to DB")
+                    }
+                });
 
                 // 분석 후 폴드 비우기
                 clearAudioFolder();
@@ -50,14 +66,17 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function () {
         console.log('Client disconnected');
+         // 클라이언트 소켓 배열에서 제거
+         clientSockets = clientSockets.filter(clientSocket => clientSocket !== socket);
+        });
     });
-});
+
 
 // Base64 데이터를 WAV 파일로 저장하는 함수
 const saveBase64AsWav = (base64Data) => {
     const fileBuffer = Buffer.from(base64Data, 'base64'); // Base64를 버퍼로 변환
     const fileName = `audio_${Date.now()}.wav`; // 파일 이름에 타임스탬프 추가
-    const savePath = path.join('./audio_data', 'audioFiles', fileName); // 파일 저장 경로
+    const savePath = path.join('../models/audio_data', 'audioFiles', fileName); // 파일 저장 경로
 
     // audioFiles 폴더가 없으면 생성
     if (!fs.existsSync(path.dirname(savePath))) {
@@ -107,3 +126,4 @@ const clearAudioFolder = () => {
         });
     });
 };
+
