@@ -1,16 +1,9 @@
-//Firebase 초기화 및 인증 객체 설정
-//Firebase를 초기화하고 Firestore 및 인증 서비스를 구성합니다.
-// 목적:
-// Firebase 초기화를 통해 인증과 Firestore 사용을 가능하게 합니다.
-// 다른 파일에서 auth와 db를 가져와 Firebase 서비스를 활용할 수 있도록 합니다.
+const { initializeApp } = require("firebase/app");
+const { getAuth } = require("firebase/auth");
+const { getFirestore } = require("firebase/firestore");
+require("dotenv").config({ path: "../dog-info-app-firebase/.env" }); // 정확한 .env 파일 경로
 
-// firebaseConfig.js
-const { initializeApp } = require("firebase/app"); // Firebase 앱 초기화 모듈
-const { getAuth } = require("firebase/auth"); // Firebase 인증 모듈
-const { getFirestore } = require("firebase/firestore"); // Firestore 데이터베이스 모듈
-require("dotenv").config(); // .env 파일에서 환경 변수 로드
-
-// Firebase 설정 가져오기
+// Firebase 설정을 환경 변수에서 가져오기
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -22,9 +15,13 @@ const firebaseConfig = {
 
 // Firebase 초기화
 const app = initializeApp(firebaseConfig);
-
-// Auth 및 Firestore 객체 생성
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-module.exports = { auth, db }; // Auth와 Firestore를 다른 파일에서 사용할 수 있도록 내보냄
+module.exports = { auth, db };
+
+// 환경 변수 확인 (디버깅용)
+console.log("Firebase 설정이 올바르게 로드되었습니다:");
+console.log("API Key:", process.env.FIREBASE_API_KEY);
+console.log("Auth Domain:", process.env.FIREBASE_AUTH_DOMAIN);
+console.log("Project ID:", process.env.FIREBASE_PROJECT_ID);
