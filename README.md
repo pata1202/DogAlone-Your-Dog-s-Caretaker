@@ -14,10 +14,7 @@ With the increase in single-person households and DINKs (dual-income, no-kids fa
 Our team was inspired by the idea that a dog's barking carries different meanings depending on its form. We aim to analyze the dog's barking sounds in real-time to understand its emotions and enable appropriate responses through a smart home system. Additionally, by organizing the data on a daily, weekly, and monthly basis, we will help users understand their dog's emotional state and find suitable solutions. The app will also provide various features to remotely manage the dog. Pet owners using our app will be able to feel as though they are with their dog, even when they are away from home.
 
 ## 🎨 Architecture Design
-
-
-
-tbd
+![architecture_design](https://github.com/user-attachments/assets/c7471ea4-d436-491c-83b6-3a3fa3b628af)
 
 ## 📽️ Demo Video
 
