@@ -55,9 +55,16 @@ def analyze_audio(audio_path):
 
         # 모델 예측
         predictions = model.predict(spectrogram_array)
-        predicted_class = np.argmax(predictions)  # 가장 높은 확률의 클래스
-        print ({"class": int(predicted_class), "probabilities": predictions.tolist()})
-        return predicted_class
+        class_labels = ['Bark', 'Growl', 'Grunt', 'Howl', 'Whimper', 'Yip']  # 클래스 레이블
+        predicted_class = np.argmax(predictions)  # 예측된 클래스 인덱스
+        predicted_class_label = class_labels[predicted_class]  # 예측된 클래스 이름
+
+        print(f"Predicted Emotion: {predicted_class_label}")
+        print("Prediction Probabilities:")
+        for label, prob in zip(class_labels, predictions[0]):
+            print(f"{label}: {prob * 100:.2f}%")
+
+        return predicted_class_label
     except Exception as e:
         print(f"Error analyzing audio: {e}")
         return None
@@ -69,7 +76,7 @@ def analyze_audio_endpoint():
     클라이언트에서 .wav 파일 경로를 받아 분석 결과를 반환합니다.
     """
     data = request.get_json()  # JSON 데이터 받기
-    audio_path = data.get('audioPath')  # .wav 파일 경로 받기
+    audio_path = data.get('audioData')  # .wav 파일 경로 받기
 
     if not audio_path or not os.path.exists(audio_path):
         return jsonify({"error": "Invalid or missing audio path"}), 400
@@ -89,4 +96,4 @@ def analyze_audio_endpoint():
     ), 200    
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='192.168.0.48', port=5000)
