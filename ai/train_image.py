@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # 스펙트로그램을 저장할 경로
-output_dir = 'spectrograms/'
+output_dir = 'train_png/'
 
 # 오디오 데이터를 스펙트로그램으로 변환하는 함수
 def audio_to_spectrogram(file_path, output_path):
@@ -48,7 +48,7 @@ def process_audio_files(data_dir):
                 audio_to_spectrogram(file_path, output_file_path)
 
 # 데이터 디렉토리 경로
-data_dir = 'all_sound/'
+data_dir = 'train_wav/'
 
 # 스펙트로그램 변환 시작
 process_audio_files(data_dir)

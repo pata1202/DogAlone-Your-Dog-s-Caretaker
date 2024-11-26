@@ -5,7 +5,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 # 데이터 전처리
 train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=20, width_shift_range=0.2, height_shift_range=0.2, horizontal_flip=True)
 train_generator = train_datagen.flow_from_directory(
-    'spectrograms',
+    'train_png',
     target_size=(150, 150),
     batch_size=32,
     class_mode='categorical'
@@ -13,7 +13,7 @@ train_generator = train_datagen.flow_from_directory(
 
 val_datagen = ImageDataGenerator(rescale=1./255)
 val_generator = val_datagen.flow_from_directory(
-    'spectrograms',
+    'train_png',
     target_size=(150, 150),
     batch_size=32,
     class_mode='categorical'
