@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -26,6 +26,28 @@ import FoodMoveButton1 from "../components/FoodMoveButton1";
 const socket = io("http://192.168.0.48:3000"); // <your-computer-ip>를 로컬 IP로 변경
 
 export default function MainPage() {
+  const [emotion, setEmotion] = useState(""); // 감정 상태 저장
+  const [recommendations, setRecommendations] = useState(["", "", ""]);//추천 상태 담기
+  
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const response = await fetch("http://192.168.0.48:3000/recommendations");
+        const data = await response.json();
+
+        // 감정 상태 업데이트
+        setEmotion(data.emotion);
+        // 쉼표로 구분된 recommendation 데이터를 배열로 변환
+        const recommendationArray = data.recommendation.split(",");
+        setRecommendations(recommendationArray); // 상태 업데이트
+      } catch (error) {
+        console.error("Failed to fetch recommendations:", error);
+      }
+    };
+
+    fetchRecommendations();
+  }, []);
+
   let [fontsLoaded] = useFonts({
     Inter_800ExtraBold,
   });
@@ -281,7 +303,7 @@ export default function MainPage() {
           source={require("../dogAloneAssets/textbubble1.png")}
           style={styles.textbubbleImage}
         />
-        <Text style={styles.bubbleState}>행복해요</Text>
+        <Text style={styles.bubbleState}>{emotion || "로딩 중..."}</Text>
 
         <View style={styles.dogNameCon}></View>
         <Text style={styles.dogNameState}>초코(닥스훈트)</Text>
@@ -298,8 +320,9 @@ export default function MainPage() {
         <View>
           <RecommendButton
             onPress={handleMusicPress}
-            title="진정되는 음악 재생하기"
-          />
+            title={recommendations[0] || "Loading..."}//첫번째 메시지
+        />
+          
         </View>
 
         <Image
@@ -311,7 +334,7 @@ export default function MainPage() {
         <View>
           <RecommendButton
             onPress={handleLightPress}
-            title="집안 조명 조절하기"
+            title={recommendations[1] || "Loading..."}//두번째 메시지
           />
         </View>
 
@@ -324,7 +347,7 @@ export default function MainPage() {
         <View style={styles.box}>
           <RecommendButton
             onPress={handleVideoPress}
-            title="진정되는 영상 재생하기"
+            title={recommendations[2] || "Loading..."}//세번째 메시지
           />
         </View>
         
