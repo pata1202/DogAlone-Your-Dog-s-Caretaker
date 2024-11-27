@@ -23,9 +23,12 @@ export default function ReportPage() {
 
   // 서버에서 받아온 데이터 (예제!!!)
   const emotionData = {
-    excitement: 3, // 흥분
-    anxiety: 8, // 불안함
-    calm: 2, // 편안함
+    bark: 5, // 흥분
+    growl: 8, // 두려움
+    grunt: 2, // 만족
+    whimper: 3,//불안
+    howl: 4,//외로움
+    yip:5,//아픔
   };
 
   // 최대 막대 높이 (그래프의 전체 높이에 맞춰 조정)
@@ -34,9 +37,12 @@ export default function ReportPage() {
   // 데이터 값을 기준으로 비율 계산
   const calculateBarHeight = (value) => {
     const maxValue = Math.max(
-      emotionData.excitement,
-      emotionData.anxiety,
-      emotionData.calm
+      emotionData.bark,
+      emotionData.growl,
+      emotionData.grunt,
+      emotionData.whimper,
+      emotionData.howl,
+      emotionData.yip,
     );
     return (value / maxValue) * MAX_BAR_HEIGHT;
   };
@@ -193,20 +199,36 @@ export default function ReportPage() {
           <View style={styles.lineBottom}></View>
 
           <Image
-            source={require("../dogAloneAssets/report1.png")}
+            source={require("../dogAloneAssets/report10.png")}
             style={styles.report1}
           />
           <Image
-            source={require("../dogAloneAssets/report2.png")}
+            source={require("../dogAloneAssets/report11.png")}
             style={styles.report2}
           />
           <Image
-            source={require("../dogAloneAssets/report3.png")}
+            source={require("../dogAloneAssets/report12.png")}
             style={styles.report3}
           />
+          <Image
+            source={require("../dogAloneAssets/report13.png")}
+            style={styles.report4}
+          />
+          <Image
+            source={require("../dogAloneAssets/report14.png")}
+            style={styles.report7}
+          />
+          
+          <Image
+            source={require("../dogAloneAssets/report15.png")}
+            style={styles.report6}
+          />
           <Text style={styles.text1}>흥분</Text>
-          <Text style={styles.text2}>불안함</Text>
-          <Text style={styles.text3}>편안함</Text>
+          <Text style={styles.text2}>두려움</Text>
+          <Text style={styles.text3}>만족</Text>
+          <Text style={styles.text4}>불안</Text>
+          <Text style={styles.text7}>외로움</Text>
+          <Text style={styles.text6}>아픔</Text>
         </View>
 
         <View style={styles.feedBox}>
@@ -214,7 +236,7 @@ export default function ReportPage() {
             source={require("../dogAloneAssets/report5.png")}
             style={styles.report5}
           />
-          <Text style={styles.text5}>오늘의 울음 리포트</Text>
+          <Text style={styles.text5}>리포트 분석</Text>
         </View>
       </ScrollView>
 
@@ -308,17 +330,32 @@ const styles = StyleSheet.create({
   report1: {
     position: "absolute",
     top: 370,
-    left: 40,
+    left: 12,
   },
   report2: {
     position: "absolute",
     top: 370,
-    left: 145,
+    left: 67,
   },
   report3: {
     position: "absolute",
     top: 370,
-    right: 40,
+    left:122,
+  },
+  report4: {
+    position: "absolute",
+    top: 370,
+    left: 177,
+  },
+  report7: {
+    position: "absolute",
+    top: 370,
+    left: 232,
+  },
+  report6: {
+    position: "absolute",
+    top: 370,
+    left: 287,
   },
   text1: {
     fontFamily: "Inter",
@@ -326,8 +363,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     position: "absolute",
-    top: 426,
-    left: 57,
+    top: 420,
+    left: 23,
   },
   text2: {
     fontFamily: "Inter",
@@ -335,8 +372,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     position: "absolute",
-    top: 426,
-    left: 158,
+    top: 420,
+    left: 72,
   },
   text3: {
     fontFamily: "Inter",
@@ -344,8 +381,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     position: "absolute",
-    top: 426,
-    right: 52,
+    top: 420,
+    left: 133,
+  },
+  text4: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    position: "absolute",
+    top: 420,
+    left: 188,
+  },
+  text7: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    position: "absolute",
+    top: 420,
+    left: 237,
+  },
+  text6: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    position: "absolute",
+    top: 420,
+    left: 297,
   },
   feedBox: {
     width: 345,
