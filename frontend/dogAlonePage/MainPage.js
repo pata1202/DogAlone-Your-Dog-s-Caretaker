@@ -23,7 +23,7 @@ import * as FileSystem from 'expo-file-system';
 import FoodMoveButton from "../components/FoodMoveButton";
 import FoodMoveButton1 from "../components/FoodMoveButton1";
 
-const socket = io("http://192.168.0.48:3000"); // <your-computer-ip>를 로컬 IP로 변경
+const socket = io("http://192.168.0.47:3000"); // <your-computer-ip>를 로컬 IP로 변경
 
 export default function MainPage() {
   const [emotion, setEmotion] = useState(""); // 감정 상태 저장
@@ -32,7 +32,7 @@ export default function MainPage() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch("http://192.168.0.48:3000/recommendations");
+        const response = await fetch("http://192.168.0.47:3000/recommendations");
         const data = await response.json();
 
         // 감정 상태 업데이트
@@ -195,7 +195,7 @@ export default function MainPage() {
             });
 
             // Base64 데이터를 소켓을 통해 전송
-            socket.emit("audioStream", { base64: fileData });  // fileData로 변경
+            socket.emit("audioStream", { fileData: fileData });  // fileData로 변경
             console.log("Base64 데이터 길이:", fileData.length);
             console.log("Audio data sent to the server");
         }

@@ -1,6 +1,6 @@
 const express = require('express');
 const mysql = require("mysql2/promise");
-const db = require('./config/db');
+const db = require('../config/db');
 const app = express();
 
 // emotion_table과 recommendation_table을 JOIN하여 데이터 조회

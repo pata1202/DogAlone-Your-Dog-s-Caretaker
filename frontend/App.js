@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Loading1 from './dogAlonePage/Loading1';
 import Login from './dogAlonePage/Login'; 
-import SmartHome from './dogAlonePage/SmartHome'; 
+import SmartHome from './dogAlonePage/smartHome'; 
 import MainPage from './dogAlonePage/MainPage';
 import ReportPage from './dogAlonePage/ReportPage';
 import DocuPage from './dogAlonePage/DocuPage';

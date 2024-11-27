@@ -10,7 +10,7 @@
 // userId를 받아 Firestore에서 해당 사용자의 정보를 가져옵니다.
 // 백엔드에서 회원가입, 로그인, 사용자 정보 조회를 수행하는 API를 제공합니다.
 
-const { auth, db } = require("./firebaseConfig"); // Firebase 설정 가져오기
+const { auth, db } = require("../config/firebaseConfig"); // Firebase 설정 가져오기
 const {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

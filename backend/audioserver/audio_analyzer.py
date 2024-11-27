@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # 분석 모델 로드
-model = tf.keras.models.load_model('dog_emotion_model.h5')
+model = tf.keras.models.load_model('../../AI/trainmodel/dog_emotion_model.h5')
 
 # 스펙트로그램 생성 함수
 def audio_to_spectrogram(audio_path, target_size=(150, 150)):
@@ -96,4 +96,4 @@ def analyze_audio_endpoint():
     ), 200    
     
 if __name__ == '__main__':
-    app.run(host='192.168.0.48', port=5000)
+    app.run(host='192.168.0.47', port=5000)
