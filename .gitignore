@@ -2,9 +2,11 @@
 
 # dependencies
 node_modules/
+frontend/node_modules
 
 # Expo
 .expo/
+frontend/.expo
 dist/
 web-build/
 
@@ -34,3 +36,6 @@ protectinfo.env
 
 # typescript
 *.tsbuildinfo
+
+# env
+/Link-test
