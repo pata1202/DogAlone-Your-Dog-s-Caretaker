@@ -1,7 +1,7 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['module:metro-react-native-babel-preset', 'babel-preset-expo'], // 통합된 presets
+    presets: [/*'module:metro-react-native-babel-preset', */'babel-preset-expo'], // 통합된 presets
     plugins: [
       'react-native-reanimated/plugin',
       [
