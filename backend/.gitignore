@@ -1,0 +1,7 @@
+# Node.js 관련
+node_modules/
+npm-debug.log
+package-lock.json
+
+# 환경 변수
+.env
