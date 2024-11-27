@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   View,
   Image,
@@ -20,16 +20,39 @@ export default function ReportPage() {
   const [viewMode, setViewMode] = useState("일별"); // '일별', '주별', '월별'
   const [selectedDate, setSelectedDate] = useState(new Date()); // 현재 날짜
   const [showCalendarModal, setShowCalendarModal] = useState(false); // 캘린더 모달 표시 상태
+  const [emotionData, setEmotionData] = useState({
+    bark: 0,
+    growl: 0,
+    grunt: 0,
+    howl: 0,
+    whimper: 0,
+    yip: 0,
+  });
+  const [reportData, setReportData] = useState([]); // 두 번째 쿼리 결과 저장
+  
+  // 데이터 로드 함수
+  const fetchEmotionData = async () => {
+    try {
+      const response = await fetch("데이터 베이스 주소"); // 서버의 API 엔드포인트
+      const result = await response.json();
 
-  // 서버에서 받아온 데이터 (예제!!!)
-  const emotionData = {
-    bark: 5, // 흥분
-    growl: 8, // 두려움
-    grunt: 2, // 만족
-    whimper: 3,//불안
-    howl: 4,//외로움
-    yip:5,//아픔
+      // 첫 번째 쿼리 결과를 emotionData에 저장
+      if (result.emotionCounts) {
+        setEmotionData(result.emotionCounts);
+      }
+
+      // 두 번째 쿼리 결과를 reportData에 저장
+      if (result.reportDetails) {
+        setReportData(result.reportDetails);
+      }
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchEmotionData();
+  }, []);
 
   // 최대 막대 높이 (그래프의 전체 높이에 맞춰 조정)
   const MAX_BAR_HEIGHT = 210;
@@ -91,6 +114,8 @@ export default function ReportPage() {
     setViewMode("일별"); // "일별" 버튼 선택
     setShowCalendarModal(false); // 캘린더 모달 닫기
   };
+
+
 
   return (
     <View style={styles.container}>
@@ -178,19 +203,37 @@ export default function ReportPage() {
             <View
               style={[
                 styles.bar,
-                { height: calculateBarHeight(emotionData.excitement) },
+                { height: calculateBarHeight(emotionData.bark) },
               ]}
             />
             <View
               style={[
                 styles.bar,
-                { height: calculateBarHeight(emotionData.anxiety) },
+                { height: calculateBarHeight(emotionData.growl) },
               ]}
             />
             <View
               style={[
                 styles.bar,
-                { height: calculateBarHeight(emotionData.calm) },
+                { height: calculateBarHeight(emotionData.grunt) },
+              ]}
+            />
+            <View
+              style={[
+                styles.bar,
+                { height: calculateBarHeight(emotionData.howl) },
+              ]}
+            />
+            <View
+              style={[
+                styles.bar,
+                { height: calculateBarHeight(emotionData.whimper) },
+              ]}
+            />
+            <View
+              style={[
+                styles.bar,
+                { height: calculateBarHeight(emotionData.yip) },
               ]}
             />
           </View>
@@ -216,19 +259,19 @@ export default function ReportPage() {
           />
           <Image
             source={require("../dogAloneAssets/report14.png")}
-            style={styles.report7}
+            style={styles.report6}
           />
           
           <Image
             source={require("../dogAloneAssets/report15.png")}
-            style={styles.report6}
+            style={styles.report7}
           />
           <Text style={styles.text1}>흥분</Text>
           <Text style={styles.text2}>두려움</Text>
           <Text style={styles.text3}>만족</Text>
           <Text style={styles.text4}>불안</Text>
-          <Text style={styles.text7}>외로움</Text>
-          <Text style={styles.text6}>아픔</Text>
+          <Text style={styles.text6}>외로움</Text>
+          <Text style={styles.text7}>아픔</Text>
         </View>
 
         <View style={styles.feedBox}>
@@ -237,6 +280,16 @@ export default function ReportPage() {
             style={styles.report5}
           />
           <Text style={styles.text5}>리포트 분석</Text>
+          <Text style={styles.reportResult}>
+  {reportData.length > 0
+    ? reportData
+        .map(
+          (item, index) =>
+            `• [${item.advice}] ${item.description}` // advice와 description 연결
+        )
+        .join("\n") // 각 결과를 줄바꿈(\n)으로 연결
+    : "결과를 가져오는 중입니다..."}
+</Text>
         </View>
       </ScrollView>
 
@@ -259,15 +312,16 @@ const styles = StyleSheet.create({
   },
   barContainer: {
     flexDirection: "row",
-    justifyContent: "center", // 막대 간격을 중앙으로 맞춤
+    justifyContent: "space-around", // 막대 사이를 균등 분배
     alignItems: "flex-end",
     height: 180,
-    marginBottom: 20,
+    width: "100%", // 부모 박스 크기에 맞추기
+    paddingHorizontal: 10, // 양쪽 여백 최소화
   },
   bar: {
-    width: 40, // 막대 너비
+    width: 20, // 막대 너비
     backgroundColor: "#FAF1C3",
-    marginHorizontal: 31, // 막대 간 간격 조정
+    marginHorizontal: 2, // 막대 간 간격 조정
     top: 179,
   },
   topbox: {
@@ -400,7 +454,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     position: "absolute",
     top: 420,
-    left: 237,
+    left: 242,
   },
   text6: {
     fontFamily: "Inter",
@@ -409,7 +463,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     position: "absolute",
     top: 420,
-    left: 297,
+    left: 292,
   },
   feedBox: {
     width: 345,
@@ -432,6 +486,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     top: -3,
+  },
+  reportResult:{
+    left: 48,
+    fontFamily: "Inter",
+    fontSize: 16,
+    color: "#000000",
   },
   bottomBar: {
     position: "absolute",
