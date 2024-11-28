@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import { View, Image, StyleSheet, Text, ScrollView } from "react-native";
 import LGspeakerCard from "../components/LGspeakerCard";
 import LGtvCard from "../components/LGtvCard";
