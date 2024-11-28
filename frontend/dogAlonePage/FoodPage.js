@@ -121,10 +121,12 @@ export default function FoodPage() {
         </TouchableOpacity>
       </ScrollView>
 
-      <HomeButton />
-      <ReportButton />
-      <DocuButton />
-      <MenuButton />
+      <View style={styles.bottomBar}>
+        <HomeButton></HomeButton>
+        <ReportButton></ReportButton>
+        <DocuButton></DocuButton>
+        <MenuButton></MenuButton>
+      </View>
 
       {/* 박스 삭제 버튼 */}
       <TouchableOpacity style={styles.deleteButton} onPress={deleteSchedule}>
@@ -361,5 +363,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: 65, // 하단 바 높이
+    backgroundColor: "#FFFFFF", // 흰색
+    justifyContent: "space-around", // 버튼 간 간격 동일
+    flexDirection: "row", // 가로 정렬
+    alignItems: "center",
+    // 경계선 제거
+    borderTopWidth: 0,
   },
 });
