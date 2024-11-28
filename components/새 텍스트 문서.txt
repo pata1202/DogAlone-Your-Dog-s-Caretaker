@@ -1,0 +1,2 @@
+1. FoodMoveButton1.js는 삭제해야 함. DevicePlusButton.js는 새로 추가한 파일
+2. 나머지는 기존 파일에서 코드 변경하면 됨.
