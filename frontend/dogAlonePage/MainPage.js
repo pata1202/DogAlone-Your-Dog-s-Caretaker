@@ -32,7 +32,7 @@ export default function MainPage() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch("http://192.168.0.47:3000/recommendations");
+        const response = await fetch("http://192.168.0.47.183:3000/recommendations");
         const data = await response.json();
 
         // 감정 상태 업데이트
