@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Image,
@@ -15,18 +16,68 @@ import ReportButton from "../components/ReportButton";
 import DocuButton from "../components/DocuButton";
 import MenuButton from "../components/MenuButton";
 import { Calendar } from "react-native-calendars";
+import { getDailyReport, getWeeklyReport, getMonthlyReport } from "../libs/api";
 
 export default function ReportPage() {
   const [viewMode, setViewMode] = useState("일별"); // '일별', '주별', '월별'
   const [selectedDate, setSelectedDate] = useState(new Date()); // 현재 날짜
   const [showCalendarModal, setShowCalendarModal] = useState(false); // 캘린더 모달 표시 상태
+  const [emotionData, setEmotionData] = useState({
+    bark_count: 0,
+    growl_count: 0,
+    grunt_count: 0,
+    howl_count: 0,
+    whimper_count: 0,
+    yip_count: 0,
+  });
+  const [reportData, setReportData] = useState([]); // 두 번째 쿼리 결과 저장
+  const [dateLabel, setDateLabel] = useState("데이터를 불러오는 중입니다..."); // 백엔드에서 전달받는 날짜 범위 텍스트
 
-  // 서버에서 받아온 데이터 (예제!!!)
-  const emotionData = {
-    excitement: 3, // 흥분
-    anxiety: 8, // 불안함
-    calm: 2, // 편안함
+  // 데이터 로드 함수
+  const fetchEmotionData = async () => {
+    try {
+      let result;
+      if (viewMode === "일별") {
+        result = await getDailyReport();
+      } else if (viewMode === "주별") {
+        result = await getWeeklyReport();
+      } else if (viewMode === "월별") {
+        result = await getMonthlyReport();
+      }
+
+      if (result.emotionCounts) {
+        setEmotionData(result.emotionCounts); // 감정 데이터 업데이트
+      } else {
+        setEmotionData({
+          bark_count: 0,
+          growl_count: 0,
+          grunt_count: 0,
+          howl_count: 0,
+          whimper_count: 0,
+          yip_count: 0,
+        }); // 기본 값 설정
+      }
+
+      if (result.reportDetails) {
+        setReportData(result.reportDetails); // 리포트 데이터 업데이트
+      } else {
+        setReportData([]); // 데이터가 없을 경우 빈 배열 설정
+      }
+
+      if (result.dateLabel) {
+        setDateLabel(result.dateLabel); // 날짜 범위 텍스트 업데이트
+      } else {
+        setDateLabel("데이터를 불러오는 중입니다...");
+      }
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+      setDateLabel("데이터를 불러오는 중입니다");
+    }
   };
+
+  useEffect(() => {
+    fetchEmotionData();
+  }, [viewMode, selectedDate]);
 
   // 최대 막대 높이 (그래프의 전체 높이에 맞춰 조정)
   const MAX_BAR_HEIGHT = 210;
@@ -34,49 +85,16 @@ export default function ReportPage() {
   // 데이터 값을 기준으로 비율 계산
   const calculateBarHeight = (value) => {
     const maxValue = Math.max(
-      emotionData.excitement,
-      emotionData.anxiety,
-      emotionData.calm
+      emotionData.bark_count,
+      emotionData.growl_count,
+      emotionData.grunt_count,
+      emotionData.howl_count,
+      emotionData.whimper_count,
+      emotionData.yip_count
     );
-    return (value / maxValue) * MAX_BAR_HEIGHT;
-  };
 
-  // 날짜 포맷 함수 (yyyy-mm-dd)
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  // 주별 날짜 범위 계산
-  const getWeekRange = (date) => {
-    const currentDate = new Date(date);
-    const dayOfWeek = currentDate.getDay(); // 0: 일요일, 1: 월요일 ...
-    const startOfWeek = new Date(currentDate);
-    const endOfWeek = new Date(currentDate);
-
-    // 월요일로 이동 (일요일이면 -6일, 그 외는 -dayOfWeek + 1일)
-    startOfWeek.setDate(
-      currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
-    );
-    // 일요일로 이동 (월요일 기준으로 +6일)
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-    return `${formatDate(startOfWeek)} ~ ${formatDate(endOfWeek)}`;
-  };
-
-  // 날짜 범위 텍스트 반환
-  const getDateRange = () => {
-    if (viewMode === "일별") {
-      return formatDate(selectedDate); // 선택된 날짜 유지
-    } else if (viewMode === "주별") {
-      return getWeekRange(selectedDate); // 주별 날짜 범위
-    } else if (viewMode === "월별") {
-      const year = selectedDate.getFullYear();
-      const month = selectedDate.toLocaleString("ko-KR", { month: "2-digit" }); // 한국어로 '11월' 형식
-      return `${year}년 ${month}`;
-    }
+    // 최대값이 0인 경우를 방지하여 비율 계산
+    return maxValue > 0 ? (value / maxValue) * MAX_BAR_HEIGHT : 0;
   };
 
   // 캘린더에서 날짜 선택 시 처리
@@ -107,14 +125,14 @@ export default function ReportPage() {
         <View style={styles.modalBackground}>
           <View style={styles.calendarContainer}>
             <Calendar
-              current={formatDate(selectedDate)} // 현재 선택된 날짜
-              minDate={formatDate(
-                new Date(new Date().setMonth(new Date().getMonth() - 6))
-              )} // 6개월 전 날짜 제한
-              maxDate={formatDate(new Date())} // 오늘까지 가능
+              current={selectedDate.toISOString().slice(0, 10)} // 현재 선택된 날짜
+              minDate={new Date(new Date().setMonth(new Date().getMonth() - 6))
+                .toISOString()
+                .slice(0, 10)} // 6개월 전 날짜 제한
+              maxDate={new Date().toISOString().slice(0, 10)} // 오늘까지 가능
               onDayPress={onDateSelect} // 날짜 선택 처리
               markedDates={{
-                [formatDate(selectedDate)]: {
+                [selectedDate.toISOString().slice(0, 10)]: {
                   selected: true,
                   marked: true,
                   selectedColor: "#FAF1C3",
@@ -143,12 +161,7 @@ export default function ReportPage() {
           {/* 일별/주별/월별 버튼 */}
           <DayMonthButton
             selected={viewMode}
-            onChange={(mode) => {
-              setViewMode(mode);
-              if (mode === "일별") {
-                setSelectedDate(selectedDate);
-              }
-            }}
+            onChange={(mode) => setViewMode(mode)}
           />
           {/* 캘린더 버튼 */}
           <TouchableOpacity
@@ -163,50 +176,63 @@ export default function ReportPage() {
         </View>
 
         {/* 날짜 텍스트 */}
-        <Text style={styles.date}>{getDateRange()} 울음 리포트</Text>
+        <Text style={styles.date}>{dateLabel}</Text>
 
         {/* 리포트 박스 */}
         <View style={styles.reportBox}>
           {/* 노란색 막대 */}
           <View style={styles.barContainer}>
-            <View
-              style={[
-                styles.bar,
-                { height: calculateBarHeight(emotionData.excitement) },
-              ]}
-            />
-            <View
-              style={[
-                styles.bar,
-                { height: calculateBarHeight(emotionData.anxiety) },
-              ]}
-            />
-            <View
-              style={[
-                styles.bar,
-                { height: calculateBarHeight(emotionData.calm) },
-              ]}
-            />
+            {[
+              "bark_count",
+              "growl_count",
+              "grunt_count",
+              "howl_count",
+              "whimper_count",
+              "yip_count",
+            ].map((emotion) => (
+              <View
+                key={emotion}
+                style={[
+                  styles.bar,
+                  { height: calculateBarHeight(emotionData[emotion]) },
+                ]}
+              />
+            ))}
           </View>
 
           {/* 원래 선 복구 */}
           <View style={styles.lineBottom}></View>
 
           <Image
-            source={require("../dogAloneAssets/report1.png")}
+            source={require("../dogAloneAssets/report10.png")}
             style={styles.report1}
           />
           <Image
-            source={require("../dogAloneAssets/report2.png")}
+            source={require("../dogAloneAssets/report11.png")}
             style={styles.report2}
           />
           <Image
-            source={require("../dogAloneAssets/report3.png")}
+            source={require("../dogAloneAssets/report12.png")}
             style={styles.report3}
           />
+          <Image
+            source={require("../dogAloneAssets/report13.png")}
+            style={styles.report4}
+          />
+          <Image
+            source={require("../dogAloneAssets/report14.png")}
+            style={styles.report6}
+          />
+          <Image
+            source={require("../dogAloneAssets/report15.png")}
+            style={styles.report7}
+          />
           <Text style={styles.text1}>흥분</Text>
-          <Text style={styles.text2}>불안함</Text>
-          <Text style={styles.text3}>편안함</Text>
+          <Text style={styles.text2}>두려움</Text>
+          <Text style={styles.text3}>만족</Text>
+          <Text style={styles.text4}>불안</Text>
+          <Text style={styles.text6}>외로움</Text>
+          <Text style={styles.text7}>아픔</Text>
         </View>
 
         <View style={styles.feedBox}>
@@ -214,7 +240,16 @@ export default function ReportPage() {
             source={require("../dogAloneAssets/report5.png")}
             style={styles.report5}
           />
-          <Text style={styles.text5}>오늘의 울음 리포트</Text>
+          <Text style={styles.text5}>리포트 분석</Text>
+          <Text style={styles.reportResult}>
+            {reportData.length > 0
+              ? reportData
+                  .map(
+                    (item) => `• [${item.advice}] ${item.description}` // advice와 description 연결
+                  )
+                  .join("\n") // 각 결과를 줄바꿈(\n)으로 연결
+              : "결과를 가져오는 중입니다..."}
+          </Text>
         </View>
       </ScrollView>
 
@@ -237,15 +272,16 @@ const styles = StyleSheet.create({
   },
   barContainer: {
     flexDirection: "row",
-    justifyContent: "center", // 막대 간격을 중앙으로 맞춤
+    justifyContent: "space-around", // 막대 사이를 균등 분배
     alignItems: "flex-end",
     height: 180,
-    marginBottom: 20,
+    width: "100%", // 부모 박스 크기에 맞추기
+    paddingHorizontal: 10, // 양쪽 여백 최소화
   },
   bar: {
-    width: 40, // 막대 너비
+    width: 20, // 막대 너비
     backgroundColor: "#FAF1C3",
-    marginHorizontal: 31, // 막대 간 간격 조정
+    marginHorizontal: 2, // 막대 간 간격 조정
     top: 179,
   },
   topbox: {
@@ -308,17 +344,32 @@ const styles = StyleSheet.create({
   report1: {
     position: "absolute",
     top: 370,
-    left: 40,
+    left: 12,
   },
   report2: {
     position: "absolute",
     top: 370,
-    left: 145,
+    left: 67,
   },
   report3: {
     position: "absolute",
     top: 370,
-    right: 40,
+    left: 122,
+  },
+  report4: {
+    position: "absolute",
+    top: 370,
+    left: 177,
+  },
+  report7: {
+    position: "absolute",
+    top: 370,
+    left: 232,
+  },
+  report6: {
+    position: "absolute",
+    top: 370,
+    left: 287,
   },
   text1: {
     fontFamily: "Inter",
@@ -326,8 +377,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     position: "absolute",
-    top: 426,
-    left: 57,
+    top: 420,
+    left: 23,
   },
   text2: {
     fontFamily: "Inter",
@@ -335,8 +386,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     position: "absolute",
-    top: 426,
-    left: 158,
+    top: 420,
+    left: 72,
   },
   text3: {
     fontFamily: "Inter",
@@ -344,8 +395,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     position: "absolute",
-    top: 426,
-    right: 52,
+    top: 420,
+    left: 133,
+  },
+  text4: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    position: "absolute",
+    top: 420,
+    left: 188,
+  },
+  text7: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    position: "absolute",
+    top: 420,
+    left: 242,
+  },
+  text6: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000000",
+    position: "absolute",
+    top: 420,
+    left: 292,
   },
   feedBox: {
     width: 345,
@@ -368,6 +446,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
     top: -3,
+  },
+  reportResult: {
+    left: 48,
+    fontFamily: "Inter",
+    fontSize: 16,
+    color: "#000000",
   },
   bottomBar: {
     position: "absolute",
@@ -413,5 +497,17 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+  },
+  bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: 65, // 하단 바 높이
+    backgroundColor: "#FFFFFF", // 흰색
+    justifyContent: "space-around", // 버튼 간 간격 동일
+    flexDirection: "row", // 가로 정렬
+    alignItems: "center",
+    // 경계선 제거
+    borderTopWidth: 0,
   },
 });
