@@ -24,31 +24,75 @@ import FoodMoveButton from "../components/FoodMoveButton";
 import DevicePlusButton from "../components/DevicePlusButton";
 import { getRecommendation } from "../libs/api";
 
-const socket = io("http://192.168.0.47:3000"); // <your-computer-ip>를 로컬 IP로 변경
+const socket = io("http://192.168.0.48:3001"); // <your-computer-ip>를 로컬 IP로 변경
 
 export default function MainPage() {
   const [emotion, setEmotion] = useState(""); // 감정 상태 저장
-  const [recommendations, setRecommendations] = useState(["", "", ""]); //추천 상태 담기
+  const [recommendations, setRecommendations] = useState(["", "", ""]); // 추천 상태 담기
+
+  // 감정 상태 변환 함수
+  const translateEmotion = (emotion) => {
+    const emotionMap = {
+      Grunt: "지금 만족해요",
+      Bark: "흥분했어요",
+      Growl: "두려워요",
+      Whimper: "불안해요",
+      Howl: "외로워요",
+      Yip: "아파요",
+    };
+
+    return emotionMap[emotion] || "알 수 없는 감정";
+  };
+
+  // 추천 데이터를 갱신하는 함수
+  const refreshRecommendData = async () => {
+    try {
+      const data = await getRecommendation();
+      console.log(data.data.emotion)
+      console.log("Recommendation data:", data);
+      // 감정 상태 업데이트
+      const translatedEmotion = translateEmotion(data.data.emotion); 
+      setEmotion(translatedEmotion);
+      // 추천 목록 업데이트
+      const recommendationArray = data.data.recommendation.split(",");
+      setRecommendations(recommendationArray);
+    } catch (error) {
+      console.error("Failed to fetch recommendations:", error);
+    }
+  };
+
+  // 감정 상태와 추천 목록을 서버로부터 받아오는 useEffect
+  useEffect(() => {
+    refreshRecommendData(); // 초기 로딩 시 추천 목록 갱신
+  }, []); // 컴포넌트가 처음 렌더링될 때만 호출
 
   useEffect(() => {
-    const refreshRecommendData = async () => {
+    // 서버와 연결된 후 확인
+    socket.on('connect', () => {
+      console.log('Socket connected to server');
+    });
+
+    // "aiResult" 이벤트 리스너 설정
+    const handleAiResult = (data) => {
       try {
-        const data = await getRecommendation();
-
-        console.log("Recommendation data:", data);
-
-        // 감정 상태 업데이트
-        setEmotion(data.data.emotion);
-        // 쉼표로 구분된 recommendation 데이터를 배열로 변환
-        const recommendationArray = data.data.recommendation.split(",");
-        setRecommendations(recommendationArray); // 상태 업데이트
+        console.log("Received aiResult data:", data); // 수신된 데이터 확인
+        if (data && data.analyze_result) {
+          // 추천 데이터,감정을 갱신하는 비동기 함수 호출
+          refreshRecommendData();
+        }
       } catch (error) {
-        console.error("Failed to fetch recommendations:", error);
+        console.error("Error updating emotion and recommendations:", error);
       }
     };
 
-    refreshRecommendData();
-  }, []);
+    // "aiResult" 이벤트 리스너 등록
+    socket.on("aiResult", handleAiResult);
+
+    // 컴포넌트가 unmount될 때 소켓 리스너 정리
+    return () => {
+      socket.off("aiResult", handleAiResult);
+    };
+  }, []); // 컴포넌트 처음 마운트될 때만 실행
 
   let [fontsLoaded] = useFonts({
     Inter_800ExtraBold,
@@ -194,6 +238,7 @@ export default function MainPage() {
           "알림",
           "녹음이 정상적으로 완료되었습니다.\n결과를 확인하세요!"
         );
+
       }
     } catch (err) {
       console.error("Failed to stop recording:", err);
