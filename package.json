@@ -24,6 +24,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-updates": "~0.26.9",
     "firebase": "^11.0.2",
+    "moment": "^2.30.1",
     "node-fetch": "^2.7.0",
     "react": "18.2.0",
     "react-native": "0.74.5",

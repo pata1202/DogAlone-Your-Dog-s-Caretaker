@@ -1,30 +1,85 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
-const recommendation = require("../utils/recommendation");
-const report_daily = require("../utils/report_daily");
-const report_weekly = require("../utils/report_weekly");
-const report_monthly = require("../utils/report_monthly");
+const authController = require("../controllers/auth");
+const { getRecommendation } = require("../services/recommendation")
+const { getDailyReport, getMonthlyReport, getWeeklyReport } = require("../services/report")
+
+/**
+ * GET /
+ * 서버 상태 확인
+ */
+router.get('/', (req, res) => {
+    res.status(200).json({ message: 'Server is running' });
+})
+
+/**
+ * POST /auth/register
+ * 회원가입
+ */
+router.post("/auth/register", authController.register);
+
+/**
+ * POST /auth/login
+ * 로그인
+ */
+router.post("/auth/login", authController.login);
+
+// 용도 확인 필요
+// // Google 로그인
+// // router.post("/api/google-login", authController.googleLogin);
+//
+// // 세션 만료 확인
+// // router.post("/api/logout-after-inactivity", authController.logoutAfterInactivity);
 
 
-// 회원가입
-router.post("/api/register", authController.register);
+/**
+ * GET /recommendation
+ * 시스템 추천 정보
+ */
+router.get("/recommendation", async (req, res) => {
+    const data = await getRecommendation();
+    res.status(200).json({ data });
+})
 
-// 로그인
-router.post("/api/login", authController.login);
+/**
+ * GET /report/daily
+ * 일일 울음 리포트
+ */
+router.get("/report/daily", async (req, res) => {
+    const { date } = req.query;  // 쿼리 파라미터에서 date를 받아오기
 
-// Google 로그인
-router.post("/api/google-login", authController.googleLogin);
+    if (!date) {
+        return res.status(400).json({ error: "날짜가 제공되지 않았습니다." });  // 날짜가 없으면 400 에러 반환
+    }
 
-// 세션 만료 확인
-router.post("/api/logout-after-inactivity", authController.logoutAfterInactivity);
+    try {
+        const data = await getDailyReport(date);  // 날짜를 매개변수로 전달
+        res.status(200).json({ data });
+    } catch (error) {
+        console.error("일일 보고서 조회 중 오류 발생:", error);
+        res.status(500).json({ error: "서버에서 오류가 발생했습니다." });
+    }
+});
 
-//시스템 추천
-router.get("/recommendation", recommendation);
 
-//울음리포트 
-router.get("/report.daily", report_daily);
-router.get("/report.weekly", report_weekly);
-router.get("/report.monthly", report_monthly);
+/**
+ * GET /report/weekly
+ * 주간 울음 리포트
+ */
+router.get('/report/weekly', async (req, res) => {
+    const data = await getWeeklyReport();
+
+    res.status(200).json({ data });
+});
+
+/**
+ * GET /report/monthly
+ * 월간 울음 리포트
+ */
+router.get('/report/monthly', async (req, res) => {
+    const data = await getMonthlyReport();
+
+    res.status(200).json({ data });
+});
 
 module.exports = router;

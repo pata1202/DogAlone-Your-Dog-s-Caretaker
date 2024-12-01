@@ -38,6 +38,10 @@ protectinfo.env
 # env
 /Link-test
 >>>>>>> 73ef42bc55b2dfb582a7489e999b57fe12ab6028
+backend/config/.env
+backend/server/.env
+backend/utils/.env
+
 
 # env
 /Link-test

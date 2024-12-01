@@ -44,5 +44,9 @@
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true,
+  "rules": {
+  "import/no-unresolved": "off",
+  "import/extensions": "off"
+}
 }

@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+axios.get('http://192.168.0.47:3000/report/daily')
+  .then(response => console.log('Axios Response:', response.data))
+  .catch(error => console.error('Axios Error:', error));
+
 import {
   View,
   Image,
@@ -8,14 +13,14 @@ import {
   TouchableOpacity,
   Modal,
 } from "react-native";
-import BackButton from "../components/BackButton";
-import DayMonthButton from "../components/DayMonthButton";
-import HomeButton from "../components/HomeButton";
-import ReportButton from "../components/ReportButton";
-import DocuButton from "../components/DocuButton";
-import MenuButton from "../components/MenuButton";
+import BackButton from "./frontend/components/BackButton";
+import DayMonthButton from "./frontend/components/DayMonthButton";
+import HomeButton from "./frontend/components/HomeButton";
+import ReportButton from "./frontend/components/ReportButton";
+import DocuButton from "./frontend/components/DocuButton";
+import MenuButton from "./frontend/components/MenuButton";
 import { Calendar } from "react-native-calendars";
-import { getDailyReport, getWeeklyReport, getMonthlyReport } from "../libs/api";
+import { getDailyReport, getWeeklyReport, getMonthlyReport } from "./frontend/libs/api";
 
 export default function ReportPage() {
   const [viewMode, setViewMode] = useState("일별"); // '일별', '주별', '월별'
@@ -36,38 +41,16 @@ export default function ReportPage() {
   const fetchEmotionData = async () => {
     try {
       let result;
-
-      // selectedDate가 유효한 날짜인지 확인
-      if (!selectedDate || isNaN(selectedDate.getTime())) {
-        console.error("유효하지 않은 날짜:", selectedDate);
-        return; // 유효하지 않은 날짜일 경우 함수를 종료
-      }
-
-      // selectedDate를 'YYYY-MM-DD' 형식으로 변환
-      const formattedDate = selectedDate.toISOString().split('T')[0]; 
-      console.log(formattedDate)
-
       if (viewMode === "일별") {
-        result = await getDailyReport(formattedDate);
-        date_daily = formattedDate
+        result = await getDailyReport();
       } else if (viewMode === "주별") {
-        result = await getWeeklyReport(formattedDate);
+        result = await getWeeklyReport();
       } else if (viewMode === "월별") {
-        result = await getMonthlyReport(formattedDate);
+        result = await getMonthlyReport();
       }
 
-      console.log('수신된 데이터: ', result);
-      if (result.data.counts && Array.isArray(result.data.counts)) {
-        // counts 배열을 적절히 변환하여 emotionData에 세팅
-        const emotionCounts = result.data.counts.reduce((acc, item) => {
-          // 각 객체의 key-value 쌍을 합침
-          Object.entries(item).forEach(([key, value]) => {
-            acc[key] = value;
-          });
-          return acc;
-        }, {});
-        console.log("변환된 데이터:", emotionCounts);
-        setEmotionData(emotionCounts)
+      if (result.emotionCounts) {
+        setEmotionData(result.emotionCounts); // 감정 데이터 업데이트
       } else {
         setEmotionData({
           bark_count: 0,
@@ -79,21 +62,20 @@ export default function ReportPage() {
         }); // 기본 값 설정
       }
 
-      if (result.data.report) {
-        setReportData(result.data.report); // 리포트 데이터 업데이트
+      if (result.reportDetails) {
+        setReportData(result.reportDetails); // 리포트 데이터 업데이트
       } else {
         setReportData([]); // 데이터가 없을 경우 빈 배열 설정
-        console.log(reportData);
       }
 
-      if (date_daily) {
-        setDateLabel(date_daily); // 날짜 범위 텍스트 업데이트
+      if (result.dateLabel) {
+        setDateLabel(result.dateLabel); // 날짜 범위 텍스트 업데이트
       } else {
         setDateLabel("데이터를 불러오는 중입니다...");
       }
     } catch (error) {
       console.error("데이터 로드 실패:", error);
-      setDateLabel("데이터를 불러오는 중입니다...");  // 오류 처리 부분 수정
+      setDateLabel("데이터를 불러오는 중입니다");
     }
   };
 
@@ -114,7 +96,7 @@ export default function ReportPage() {
       emotionData.whimper_count,
       emotionData.yip_count
     );
-  
+
     // 최대값이 0인 경우를 방지하여 비율 계산
     return maxValue > 0 ? (value / maxValue) * MAX_BAR_HEIGHT : 0;
   };
@@ -205,18 +187,18 @@ export default function ReportPage() {
           {/* 노란색 막대 */}
           <View style={styles.barContainer}>
             {[
-              { key: "bark_count", value: emotionData.bark_count },
-              { key: "growl_count", value: emotionData.growl_count },
-              { key: "grunt_count", value: emotionData.grunt_count },
-              { key: "howl_count", value: emotionData.howl_count },
-              { key: "whimper_count", value: emotionData.whimper_count },
-              { key: "yip_count", value: emotionData.yip_count },
+              "bark_count",
+              "growl_count",
+              "grunt_count",
+              "howl_count",
+              "whimper_count",
+              "yip_count",
             ].map((emotion) => (
               <View
-                key={emotion.key} // 안전한 fallback 방법
+                key={emotion}
                 style={[
                   styles.bar,
-                  { height: calculateBarHeight(emotion.value) },
+                  { height: calculateBarHeight(emotionData[emotion]) },
                 ]}
               />
             ))}
@@ -266,6 +248,10 @@ export default function ReportPage() {
           <Text style={styles.reportResult}>
             {reportData.length > 0
               ? reportData
+                  .map(
+                    (item) => `• [${item.advice}] ${item.description}` // advice와 description 연결
+                  )
+                  .join("\n") // 각 결과를 줄바꿈(\n)으로 연결
               : "결과를 가져오는 중입니다..."}
           </Text>
         </View>
@@ -445,11 +431,11 @@ const styles = StyleSheet.create({
   },
   feedBox: {
     width: 345,
+    height: 152,
     backgroundColor: "#FAF1C3",
     borderRadius: 10,
     marginTop: 20,
     alignSelf: "center",
-    padding: 5, // 텍스트와 상자 경계 간격
   },
   report5: {
     width: 23,
@@ -466,8 +452,7 @@ const styles = StyleSheet.create({
     top: -3,
   },
   reportResult: {
-    paddingLeft: 48, // 왼쪽 여백
-    paddingRight: 30, // 오른쪽 여백
+    left: 48,
     fontFamily: "Inter",
     fontSize: 16,
     color: "#000000",

@@ -24,7 +24,7 @@ import FoodMoveButton from "../components/FoodMoveButton";
 import DevicePlusButton from "../components/DevicePlusButton";
 import { getRecommendation } from "../libs/api";
 
-const socket = io("http://192.168.0.48:3001"); // <your-computer-ip>를 로컬 IP로 변경
+const socket = io("http://192.168.0.47:3001"); // <your-computer-ip>를 로컬 IP로 변경
 
 export default function MainPage() {
   const [emotion, setEmotion] = useState(""); // 감정 상태 저장
@@ -33,7 +33,7 @@ export default function MainPage() {
   // 감정 상태 변환 함수
   const translateEmotion = (emotion) => {
     const emotionMap = {
-      Grunt: "지금 만족해요",
+      Grunt: "만족해요",
       Bark: "흥분했어요",
       Growl: "두려워요",
       Whimper: "불안해요",
@@ -101,15 +101,15 @@ export default function MainPage() {
   const navigation = useNavigation();
 
   const handleMusicPress = () => {
-    alert("음악 재생");
+    alert(recommendations[0]);
   };
 
   const handleLightPress = () => {
-    alert("조명 조절");
+    alert(recommendations[1]);
   };
 
   const handleVideoPress = () => {
-    alert("영상 재생");
+    alert(recommendations[2]);
   };
 
   const [isModalVisible, setModalVisible] = useState(false);

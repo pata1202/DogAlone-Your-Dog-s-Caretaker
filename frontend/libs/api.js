@@ -6,7 +6,7 @@ import axios from "axios";
  * @type {axios.AxiosInstance}
  */
 export const api = axios.create({
-  baseURL: 'http://192.168.0.48:3000',
+  baseURL: 'http://192.168.0.47:3000',
 })
 
 /**
@@ -109,8 +109,8 @@ export const getRecommendation = () => api
  * GET /daily-report
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const getDailyReport = () => axios
-  .get('/report/daily')
+export const getDailyReport = (date) => api
+  .get(`/report/daily`, { params: { date } })  // 날짜를 쿼리 파라미터로 전달
   .then(res => res.data)
   .catch(error => {
     console.error('일일 보고서 조회 중 오류 발생:', error);
@@ -132,8 +132,8 @@ export const getDailyReport = () => axios
  * GET /weekly-report
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const getWeeklyReport = () => axios
-  .get('/report/weekly')
+export const getWeeklyReport = (date) => api
+  .get(`/report/weekly`, { params: { date } })  // 날짜를 쿼리 파라미터로 전달
   .then(res => res.data)
   .catch(error => {
     console.error('주간 보고서 조회 중 오류 발생:', error);
@@ -155,8 +155,8 @@ export const getWeeklyReport = () => axios
  * GET /monthly-report
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const getMonthlyReport = () => axios
-  .get('/report/monthly')
+export const getMonthlyReport = (date) => api
+  .get(`/report/monthly`, { params: { date } })  // 날짜를 쿼리 파라미터로 전달
   .then(res => res.data)
   .catch(error => {
     console.error('월간 보고서 조회 중 오류 발생:', error);

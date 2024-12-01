@@ -16,8 +16,8 @@ const io = socketIo(server);
 let clientSockets = [];
 
 // 포트 연결
-server.listen(3000, function () {
-    console.log('Connected to 3000 port');
+server.listen(3001, function () {
+    console.log('Connected to 3001 port');
 });
 
 // 클라이언트 연결
@@ -50,7 +50,7 @@ io.on('connection', function (socket) {
                 clientSockets.forEach(clientSocket => {
                     if (clientSocket !== socket) { // 자기 자신은 제외하고
                         clientSocket.emit("aiResult", aiResponse);
-                        console.log("Sent data to DB")
+                        console.log("Sent data to DB and Client")
                     }
                 });
 
@@ -70,7 +70,6 @@ io.on('connection', function (socket) {
          clientSockets = clientSockets.filter(clientSocket => clientSocket !== socket);
         });
     });
-
 
 // Base64 데이터를 WAV 파일로 저장하는 함수
 const saveBase64AsWav = (base64Data) => {
