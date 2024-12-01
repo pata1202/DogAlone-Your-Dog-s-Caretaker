@@ -66,20 +66,40 @@ router.get("/report/daily", async (req, res) => {
  * GET /report/weekly
  * 주간 울음 리포트
  */
-router.get('/report/weekly', async (req, res) => {
-    const data = await getWeeklyReport();
+router.get("/report/weekly", async (req, res) => {
+    const { date } = req.query;  // 쿼리 파라미터에서 date를 받아오기
 
-    res.status(200).json({ data });
+    if (!date) {
+        return res.status(400).json({ error: "날짜가 제공되지 않았습니다." });  // 날짜가 없으면 400 에러 반환
+    }
+
+    try {
+        const data = await getWeeklyReport(date);  // 날짜를 매개변수로 전달
+        res.status(200).json({ data });
+    } catch (error) {
+        console.error("주간 보고서 조회 중 오류 발생:", error);
+        res.status(500).json({ error: "서버에서 오류가 발생했습니다." });
+    }
 });
+
 
 /**
  * GET /report/monthly
  * 월간 울음 리포트
  */
-router.get('/report/monthly', async (req, res) => {
-    const data = await getMonthlyReport();
+router.get("/report/monthly", async (req, res) => {
+    const { date } = req.query;  // 쿼리 파라미터에서 date를 받아오기
 
-    res.status(200).json({ data });
+    if (!date) {
+        return res.status(400).json({ error: "날짜가 제공되지 않았습니다." });  // 날짜가 없으면 400 에러 반환
+    }
+
+    try {
+        const data = await getMonthlyReport(date);  // 날짜를 매개변수로 전달
+        res.status(200).json({ data });
+    } catch (error) {
+        console.error("월간 보고서 조회 중 오류 발생:", error);
+        res.status(500).json({ error: "서버에서 오류가 발생했습니다." });
+    }
 });
-
 module.exports = router;

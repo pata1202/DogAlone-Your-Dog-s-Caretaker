@@ -1,12 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function DayMonthButton() {
-  const [selected, setSelected] = useState('일별'); // 초기 선택 상태
-
-  const handlePress = (type) => {
-    setSelected(type); // 버튼 클릭 시 선택 상태 변경
-  };
+export default function DayMonthButton({ viewMode, onSelectionChange }) {
 
   return (
     <View style={styles.container}>
@@ -14,11 +9,11 @@ export default function DayMonthButton() {
       <TouchableOpacity
         style={[
           styles.button,
-          selected === '일별' && styles.selectedButton, // 선택된 버튼 스타일 적용
+          viewMode === '일별' && styles.selectedButton, // 선택된 버튼 스타일 적용
         ]}
-        onPress={() => handlePress('일별')}
+        onPress={() => onSelectionChange('일별')}
       >
-        <Text style={[styles.buttonText, selected === '일별' && styles.selectedText]}>
+        <Text style={[styles.buttonText, viewMode === '일별' && styles.selectedText]}>
           일별
         </Text>
       </TouchableOpacity>
@@ -27,11 +22,11 @@ export default function DayMonthButton() {
       <TouchableOpacity
         style={[
           styles.button,
-          selected === '주별' && styles.selectedButton, // 선택된 버튼 스타일 적용
+          viewMode === '주별' && styles.selectedButton, // 선택된 버튼 스타일 적용
         ]}
-        onPress={() => handlePress('주별')}
+        onPress={() => onSelectionChange ('주별')}
       >
-        <Text style={[styles.buttonText, selected === '주별' && styles.selectedText]}>
+        <Text style={[styles.buttonText, viewMode === '주별' && styles.selectedText]}>
           주별
         </Text>
       </TouchableOpacity>
@@ -40,11 +35,11 @@ export default function DayMonthButton() {
       <TouchableOpacity
         style={[
           styles.button,
-          selected === '월별' && styles.selectedButton, // 선택된 버튼 스타일 적용
+          viewMode === '월별' && styles.selectedButton, // 선택된 버튼 스타일 적용
         ]}
-        onPress={() => handlePress('월별')}
+        onPress={() => onSelectionChange ('월별')}
       >
-        <Text style={[styles.buttonText, selected === '월별' && styles.selectedText]}>
+        <Text style={[styles.buttonText, viewMode === '월별' && styles.selectedText]}>
           월별
         </Text>
       </TouchableOpacity>

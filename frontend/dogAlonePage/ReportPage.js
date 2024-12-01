@@ -32,6 +32,15 @@ export default function ReportPage() {
   const [reportData, setReportData] = useState([]); // 두 번째 쿼리 결과 저장
   const [dateLabel, setDateLabel] = useState("데이터를 불러오는 중입니다..."); // 백엔드에서 전달받는 날짜 범위 텍스트
 
+  const handleSelectionChange = (type) => {
+    setViewMode(type);  // 선택된 항목을 변경
+  };
+
+  useEffect(() => {
+    fetchEmotionData();
+    console.log(viewMode, selectedDate);
+  }, [viewMode, selectedDate]); // viewMode 또는 selectedDate가 변경되면 데이터 로드  
+
   // 데이터 로드 함수
   const fetchEmotionData = async () => {
     try {
@@ -45,15 +54,58 @@ export default function ReportPage() {
 
       // selectedDate를 'YYYY-MM-DD' 형식으로 변환
       const formattedDate = selectedDate.toISOString().split('T')[0]; 
-      console.log(formattedDate)
+      console.log("선택된 날짜:", formattedDate);
+
+      const getStartAndEndOfWeek = (date) => {
+        // 날짜가 문자열이라면 Date 객체로 변환
+        const newdate = new Date(date);
+        
+        if (!(newdate instanceof Date) || isNaN(newdate)) {
+          console.error("Invalid date provided");
+          return { start: undefined, end: undefined }; // 잘못된 날짜가 들어왔을 경우
+        }
+      
+        const dayOfWeek = newdate.getDay(); // 0 (일요일)부터 6 (토요일)까지
+        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 월요일로부터의 차이 계산
+        const monday = new Date(newdate);
+        monday.setDate(newdate.getDate() + diffToMonday); // 해당 주의 월요일 날짜
+      
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6); // 월요일로부터 6일 후인 일요일 날짜
+      
+        const formattedMonday = monday.toISOString().split('T')[0];
+        const formattedSunday = sunday.toISOString().split('T')[0];
+      
+        console.log("Start (Monday):", formattedMonday);
+        console.log("End (Sunday):", formattedSunday);
+      
+        return { start: formattedMonday, end: formattedSunday }; // 시작과 끝 날짜를 반환
+      };
+
+      //월별 날짜 반환
+      const getStartAndEndOfMonth = (date) => {
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1); // 해당 월의 첫날
+      
+        // 월의 첫날과 마지막날을 'YYYY-MM-DD' 형식으로 반환
+        const formattedStart = startOfMonth.toISOString().split('T')[0];
+      
+        return {formattedStart};
+      };
 
       if (viewMode === "일별") {
         result = await getDailyReport(formattedDate);
-        date_daily = formattedDate
+        setDateLabel(formattedDate); // 일별 날짜 설정
+
       } else if (viewMode === "주별") {
-        result = await getWeeklyReport(formattedDate);
+        const { start, end } = getStartAndEndOfWeek(formattedDate);
+        result = await getWeeklyReport(start);
+        setDateLabel(`${start} ~ ${end}`); // 월 표시
+        
+        setDateLabel(`${start} ~ ${end}`); // 주별 날짜 범위 설정
       } else if (viewMode === "월별") {
-        result = await getMonthlyReport(formattedDate);
+        const start = getStartAndEndOfWeek(formattedDate);
+        result = await getMonthlyReport(start);
+        setDateLabel(`${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}`); // 월 표시
       }
 
       console.log('수신된 데이터: ', result);
@@ -67,7 +119,7 @@ export default function ReportPage() {
           return acc;
         }, {});
         console.log("변환된 데이터:", emotionCounts);
-        setEmotionData(emotionCounts)
+        setEmotionData(emotionCounts);
       } else {
         setEmotionData({
           bark_count: 0,
@@ -86,11 +138,6 @@ export default function ReportPage() {
         console.log(reportData);
       }
 
-      if (date_daily) {
-        setDateLabel(date_daily); // 날짜 범위 텍스트 업데이트
-      } else {
-        setDateLabel("데이터를 불러오는 중입니다...");
-      }
     } catch (error) {
       console.error("데이터 로드 실패:", error);
       setDateLabel("데이터를 불러오는 중입니다...");  // 오류 처리 부분 수정
@@ -182,8 +229,7 @@ export default function ReportPage() {
         <View style={styles.DayCon}>
           {/* 일별/주별/월별 버튼 */}
           <DayMonthButton
-            selected={viewMode}
-            onChange={(mode) => setViewMode(mode)}
+            viewMode={viewMode} onSelectionChange={handleSelectionChange}
           />
           {/* 캘린더 버튼 */}
           <TouchableOpacity
@@ -252,9 +298,9 @@ export default function ReportPage() {
           <Text style={styles.text1}>흥분</Text>
           <Text style={styles.text2}>두려움</Text>
           <Text style={styles.text3}>만족</Text>
-          <Text style={styles.text4}>불안</Text>
-          <Text style={styles.text6}>외로움</Text>
-          <Text style={styles.text7}>아픔</Text>
+          <Text style={styles.text4}>외로움</Text>
+          <Text style={styles.text6}>아픔</Text>
+          <Text style={styles.text7}>불안</Text>
         </View>
 
         <View style={styles.feedBox}>
@@ -423,7 +469,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     position: "absolute",
     top: 420,
-    left: 188,
+    left: 184,
   },
   text7: {
     fontFamily: "Inter",
@@ -432,7 +478,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     position: "absolute",
     top: 420,
-    left: 242,
+    left: 244,
   },
   text6: {
     fontFamily: "Inter",
@@ -441,7 +487,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     position: "absolute",
     top: 420,
-    left: 292,
+    left: 298,
   },
   feedBox: {
     width: 345,

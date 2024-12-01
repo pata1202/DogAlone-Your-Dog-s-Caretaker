@@ -6,6 +6,7 @@ const { findHost } = require("../utils/host-finder");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.json());
 app.use(routes);
 
