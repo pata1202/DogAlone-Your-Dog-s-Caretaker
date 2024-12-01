@@ -23,11 +23,19 @@ return(
       <Text></Text>
       <Text style={styles.mainText}>DogAlone의 ‘실시간 반려견 소리 분석’ 버튼을 누르면, 실시간으로 반려견의 소리를  AI로 분석하여 개의 감정 상태를 인식하고, 적절한 솔루션을 제공해줍니다.</Text>
       <Text></Text>
-      <Text style={styles.mainText}>DogAlone의 ‘실시간 반려견 소리 분석’ 버튼을 누르면, 실시간으로 반려견의 소리를  AI로 분석하여 개의 감정 상태를 인식하고, 적절한 솔루션을 제공해줍니다.</Text>
+      <Text style={styles.mainText}>DogAlone의 스마트홈 솔루션은 여러 논문과 수의사 처방 결과를 바탕으로 결정되었습니다.</Text>
       <Text></Text>
-      <Text style={styles.mainText}>DogAlone의 ‘실시간 반려견 소리 분석’ 버튼을 누르면, 실시간으로 반려견의 소리를  AI로 분석하여 개의 감정 상태를 인식하고, 적절한 솔루션을 제공해줍니다.</Text>
+      <Text style={styles.mainText}>흥분(bark): 집안 음악 끄기, 부드러운 조명 켜기, 간식로봇 작동하기</Text>
       <Text></Text>
-      <Text style={styles.mainText}>DogAlone의 ‘실시간 반려견 소리 분석’ 버튼을 누르면, 실시간으로 반려견의 소리를  AI로 분석하여 개의 감정 상태를 인식하고, 적절한 솔루션을 제공해줍니다.</Text>
+      <Text style={styles.mainText}>두려움(growl): 조용한 음악 틀기, 집안 온도 높이기, 간식로봇 작동하기</Text>
+      <Text></Text>
+      <Text style={styles.mainText}>만족(grunt): 조용한 음악 틀기, 자연 영상 틀기, 공기청정기 가동하기</Text>
+      <Text></Text>
+      <Text style={styles.mainText}>불안(whimper): 스피커로 통화 연결하기, 부드러운 조명 켜기, 동물 영상 틀기</Text>
+      <Text></Text>
+      <Text style={styles.mainText}>외로움(howl): 스피커로 주인 목소리 틀기, 동물 영상 틀기, 간식로봇 작동하기</Text>
+      <Text></Text>
+      <Text style={styles.mainText}>아픔(yip): 주변 동물병원 정보, 조용한 음악 틀기, 부드러운 조명 켜기</Text>
       
       </ScrollView>
       </View>

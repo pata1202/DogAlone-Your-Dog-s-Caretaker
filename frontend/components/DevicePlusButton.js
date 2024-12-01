@@ -19,9 +19,9 @@ export default function DevicePlusButton() {
     "LG 에어컨",
     "LG 스피커",
     "LG 티비",
-    "LG 스마트 급식기",
-    "LG 조명",
-    "LG 급수기",
+    "LG 공기청정기",
+    "간식로봇",
+    "조명",
   ];
 
   const toggleDeviceModal = () => {
