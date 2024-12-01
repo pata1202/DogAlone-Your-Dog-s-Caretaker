@@ -1,13 +1,27 @@
 const { getDatabase } = require('../config/db')
+const moment = require('moment');
+
+const translateEmotion = (emotion) => {
+    const emotionMap = {
+      Grunt: "만족해요",
+      Bark: "흥분했어요",
+      Growl: "두려워요",
+      Whimper: "불안해요",
+      Howl: "외로워요",
+      Yip: "아파요",
+    };
+
+    return emotionMap[emotion] || "알 수 없는 감정";
+  };
 
 /**
  * 일일 보고서 조회
  * @returns {Promise<*>}
  */
-exports.getDailyReport = async () => {
+exports.getDailyReport = async (date) => {
 
     const db = await getDatabase();
-    console.log('일일 보고서 조회 요청 받음'); // 요청이 들어올 때마다 로그 찍기
+    console.log('일일 보고서 조회 요청 받음', date); // 요청이 들어올 때마다 로그 찍기
     
     const query = `
   SELECT time AS date,
@@ -23,17 +37,9 @@ exports.getDailyReport = async () => {
   ORDER BY time;
 `;
 
-    const startTime = '2024-11-26 00:00:00';
-
-    // startTime을 Date 객체로 변환
-    const startDate = new Date(startTime + ' UTC');
-
-    // endTime은 startTime에서 하루를 더한 시간으로 설정
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 1);  // 하루를 더함
-
-    // endTime을 MySQL에서 사용할 수 있는 형식으로 변환 (YYYY-MM-DD HH:mm:ss)
-    const endTime = endDate.toISOString().slice(0, 19).replace('T', ' ');
+    // 날짜 범위 설정 (해당 날짜의 00:00:00부터 23:59:59까지)
+    const startTime = `${date} 00:00:00`; // 시작 날짜
+    const endTime = `${date} 23:59:59`;   // 종료 날짜
 
     try {
         const [results] = await db.promise().query(query, [startTime, endTime]);
@@ -47,12 +53,12 @@ exports.getDailyReport = async () => {
         // 각 emotion의 count를 비교하여 가장 큰 값 찾기
         results.forEach(row => {
             const counts = {
-                bark: row.bark_count,
-                growl: row.growl_count,
-                grunt: row.grunt_count,
-                howl: row.howl_count,
-                whimper: row.whimper_count,
-                yip: row.yip_count
+                Bark: row.bark_count,
+                Growl: row.growl_count,
+                Grunt: row.grunt_count,
+                Howl: row.howl_count,
+                Whimper: row.whimper_count,
+                Yip: row.yip_count
             };
 
             for (const emotion in counts) {
@@ -72,8 +78,24 @@ exports.getDailyReport = async () => {
         const [reportResults] = await db.promise().query(query2, [maxEmotion]);
 
         console.log(`가장 많이 발생한 감정인 '${maxEmotion}'에 대한 결과:`, reportResults);
+        const formattedDate = moment(startTime).format('YYYY년 MM월 DD일');
 
-        return reportResults;
+        maxEmotion = translateEmotion(maxEmotion)
+        // 'reportResults'에 있는 각각의 advice와 description을 출력 형식으로 변환
+        let reportAnalyze = `초코는 '${formattedDate}'에 \n'${maxEmotion}'을 가장 많이 느꼈어요. \n총 '${maxCount}번'의 짖음 소리로 \n'${maxEmotion}'을 표현했어요. \n초코에게 적합한 조언을 확인해보세요.\n`;
+
+        // 각 reportResult의 advice와 description을 출력
+        reportResults.forEach(reportResults => {
+            reportAnalyze += `\n${reportResults.advice}: ${reportResults.description}\n`;
+        });
+
+        report_result = {
+            'counts': results,
+            'report': reportAnalyze
+        };
+        console.log(report_result)
+
+        return report_result;
     } catch (e) {
         console.error('쿼리 실행 중 오류 발생:', e);
         throw e;
@@ -139,12 +161,26 @@ exports.getWeeklyReport = async () => {
 
         // 가장 많이 발생한 감정 출력
         console.log(`가장 많이 발생한 감정: ${maxEmotion}`);
+        console.log(`최대 횟수: `, counts[maxEmotion]);
 
         // query2 실행
         const query2 = `SELECT * FROM report WHERE emotion = ?`;
         const [reportResults] = await db.promise().query(query2, [maxEmotion]);
 
         console.log(`가장 많이 발생한 감정인 '${maxEmotion}'에 대한 결과:`, reportResults);
+ 
+
+        
+        // 'reportResults'에 있는 각각의 advice와 description을 출력 형식으로 변환
+        let reportAnalyze = `초코는 '${startTime}'에 '${maxEmotion}'을 가장 많이 느꼈어요. 총 '${maxCount}'번의 짖음 소리로 '${maxEmotion}'을 표현했어요.\n`;
+
+        // 각 reportResult의 advice와 description을 출력
+        reportResults.forEach(result => {
+            reportAnalyze += `\n조언: ${result.advice}\n설명: ${result.description}\n`;
+        });
+        console.log('reportResults:', reportResults);
+
+        console.log(reportAnalyze);
 
         return reportResults;
     } catch (e) {
