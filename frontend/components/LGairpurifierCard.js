@@ -1,38 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
 import OnOffButton from "./OnOffButton"; // On/Off 버튼 컴포넌트
 import ExpandableBar from "./ExpandableBar"; // 드롭다운 컴포넌트
-
-// 온도 조절 컴포넌트
-const TemperatureControl = () => {
-  const [temperature, setTemperature] = useState(18); // 초기 온도 설정
-
-  const increaseTemperature = () => {
-    setTemperature((prevTemp) => prevTemp + 1);
-  };
-
-  const decreaseTemperature = () => {
-    setTemperature((prevTemp) => prevTemp - 1);
-  };
-
-  return (
-    <View style={temperatureStyles.container}>
-      <TouchableOpacity
-        onPress={decreaseTemperature}
-        style={temperatureStyles.arrow}
-      >
-        <Text style={temperatureStyles.arrowText}>▼</Text>
-      </TouchableOpacity>
-      <Text style={temperatureStyles.temperatureText}>{temperature}°C</Text>
-      <TouchableOpacity
-        onPress={increaseTemperature}
-        style={temperatureStyles.arrow}
-      >
-        <Text style={temperatureStyles.arrowText}>▲</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
+import DragBar from "./DragBar"; // 슬라이더 컴포넌트
 
 export default function LGspeakerCard() {
   const [isExpanded, setIsExpanded] = useState(false); // 펼침 상태 관리
@@ -44,11 +14,11 @@ export default function LGspeakerCard() {
   return (
     <View style={styles.cardContainer}>
       {/* LG 스피커 텍스트 */}
-      <Text style={styles.titleText}>에어컨</Text>
+      <Text style={styles.titleText}>공기청정기</Text>
 
       {/* 스피커 이미지 */}
       <Image
-        source={require("../dogAloneAssets/newair.png")}
+        source={require("../dogAloneAssets/newairpurifier.png")}
         style={styles.speakerImage}
       />
 
@@ -66,45 +36,14 @@ export default function LGspeakerCard() {
         />
       </View>
 
-      {/* 온도 조절 */}
+      {/* 스피커 볼륨 */}
       <View style={styles.volumeContainer}>
-        <Text style={styles.labelText}>온도 조절</Text>
-        <TemperatureControl />
+        <Text style={styles.labelText}>세기 조절</Text>
+        <DragBar />
       </View>
     </View>
   );
 }
-
-const temperatureStyles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: 157,
-    height: 24,
-    borderWidth: 1,
-    borderColor: "#DADADA",
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    backgroundColor: "#f4f4f4",
-    top: 7,
-  },
-  arrow: {
-    width: 20,
-    height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  arrowText: {
-    fontSize: 14,
-    color: "#000",
-  },
-  temperatureText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#000",
-  },
-});
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -125,16 +64,16 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#000000",
     position: "absolute",
-    left: 26,
+    left: 20,
     top: 22,
   },
   speakerImage: {
-    width: 60,
-    height: 67,
+    width: 63,
+    height: 53,
     resizeMode: "contain",
     position: "absolute",
-    left: 20,
-    top: 63, // LG 스피커 텍스트 아래에 위치
+    left: 23,
+    top: 70, // LG 스피커 텍스트 아래에 위치
   },
   onOffContainer: {
     position: "absolute",
@@ -164,7 +103,6 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto",
     color: "#000000",
     marginRight: 20, // 텍스트와 컴포넌트 간격
-    top: 6,
   },
   labelText2: {
     fontSize: 16,
