@@ -1,5 +1,7 @@
 # 🐶 DogAlone: Your Dog’s Caretaker
 > The Smart Choice for Leaving Your Dog Alone. This app provides various smart home solutions based on dog barking sound analysis.
+![image](https://github.com/user-attachments/assets/eeb2b1f5-558d-4e9c-ad12-09e6624e8377)
+
 
 ## ✏️ Abstract
 In modern households, dogs have become more than just pets—they are now regarded as members of the family. As of 2022, the number of registered dogs in Korea has reached approximately 3.02 million. However, a significant number of dogs are left alone for more than 5 hours a day on average, experiencing issues such as loneliness, separation anxiety, and excessive barking.
