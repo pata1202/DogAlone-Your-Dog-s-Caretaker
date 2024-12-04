@@ -1,5 +1,6 @@
 # 🐶 DogAlone: Your Dog’s Caretaker
 > The Smart Choice for Leaving Your Dog Alone. This app provides various smart home solutions based on dog barking sound analysis.
+
 ![image](https://github.com/user-attachments/assets/eeb2b1f5-558d-4e9c-ad12-09e6624e8377)
 
 
