@@ -21,7 +21,7 @@ Our team was inspired by the idea that a dog's barking carries different meaning
 
 ## 📽️ Demo Video
 
-tbd
+[Youtube](https://youtu.be/nOCvGjsEgLs?feature=shared)
 
 ## 📱 Main functions
 
