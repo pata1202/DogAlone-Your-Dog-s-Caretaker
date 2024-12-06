@@ -21,7 +21,8 @@ Our team was inspired by the idea that a dog's barking carries different meaning
 
 ## 📽️ Demo Video
 
-<iframe width="1161" height="653" src="https://www.youtube.com/embed/nOCvGjsEgLs" title="DogAlone Demo Video - Software Engineering (CSE4006)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Video Label](https://img.youtube.com/vi/nOCvGjsEgLs/0.jpg)](https://www.youtube.com/watch?v=nOCvGjsEgLs)
+
 
 ## 📱 Main functions
 
