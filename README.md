@@ -24,7 +24,7 @@ Our team was inspired by the idea that a dog's barking carries different meaning
 ⏬**Clink Picture to Watch Demo Video**
 
 
-[![Video Label](https://img.youtube.com/vi/MKQL9KccP5Y/0.jpg)](https://www.youtube.com/watch?v=MKQL9KccP5Y)
+[![Video Label](https://img.youtube.com/vi/vI6_nmKvPZs/0.jpg)](https://www.youtube.com/watch?v=vI6_nmKvPZs)
 
 
 ## 📱 Main functions
